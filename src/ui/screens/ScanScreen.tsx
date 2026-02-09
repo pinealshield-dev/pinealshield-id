@@ -11,46 +11,9 @@ import { runOnJS } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/RootNavigator';
+import { parseIdentifier } from '@/utils/parseIdentifier';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Scan'>;
-
-/**
- * QR is UNTRUSTED input.
- * This function only normalizes and extracts a candidate identifier.
- * It does NOT decide authenticity.
- */
-function parseQrStrict(raw: string): string | null {
-  try {
-    // URL-style QR (no DOM URL dependency)
-    if (raw.startsWith('http')) {
-      // Basic safe parsing
-      const match = raw.match(/^https?:\/\/([^/]+)\/(.+)$/i);
-      if (!match) return null;
-
-      const host = match[1];
-      const path = match[2];
-
-      const allowedHosts = ['verify.pinealshield.com'];
-      if (!allowedHosts.includes(host)) return null;
-
-      const parts = path.split('/').filter(Boolean);
-      if (parts.length >= 2 && parts[0] === 'verify') {
-        return parts[1]; // hash / id
-      }
-
-      return null;
-    }
-
-    // Direct identifier (hash / short id)
-    if (/^[a-zA-Z0-9_-]{16,128}$/.test(raw)) {
-      return raw;
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}
 
 export function ScanScreen() {
   const navigation = useNavigation<Nav>();
@@ -64,19 +27,22 @@ export function ScanScreen() {
   }, [hasPermission, requestPermission]);
 
   const onCodeScanned = (raw: string) => {
-    const identifier = parseQrStrict(raw);
+    const identifier = parseIdentifier(raw);
 
     if (!identifier) {
+      // QR leído pero no válido según reglas Pineal Shield
       navigation.replace('Result', { status: 'invalid', raw });
       return;
     }
 
+    // Identificador normalizado (hash global)
     navigation.replace('Result', { status: 'scanned', raw: identifier });
   };
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     const barcodes = scanBarcodes(frame, [BarcodeFormat.QR_CODE]);
+
     if (barcodes.length > 0 && barcodes[0].rawValue) {
       runOnJS(onCodeScanned)(barcodes[0].rawValue);
     }
