@@ -1,38 +1,36 @@
+// src/utils/parseIdentifier.ts
+
+import { ENV } from '@/config/env';
+
 /**
- * QR / NFC input is UNTRUSTED.
- * This function only normalizes and extracts a candidate identifier.
- * It NEVER decides authenticity.
+ * Normaliza input NO confiable (QR / texto)
+ * No decide autenticidad.
  */
 export function parseIdentifier(raw: string): string | null {
-  try {
-    const value = raw.trim();
+  const value = raw.trim();
 
-    // URL-style identifier (manual parsing, RN-safe)
-    if (value.startsWith('http')) {
-      const match = value.match(/^https?:\/\/([^/]+)\/(.+)$/i);
-      if (!match) return null;
+  // URL-style QR
+  if (value.startsWith('http')) {
+    const match = value.match(/^https?:\/\/([^/]+)\/(.+)$/i);
+    if (!match) return null;
 
-      const host = match[1];
-      const path = match[2];
+    const host = match[1];
+    const path = match[2];
 
-      const allowedHosts = ['verify.pinealshield.com'];
-      if (!allowedHosts.includes(host)) return null;
+    if (!ENV.ALLOWED_HOSTS.includes(host)) return null;
 
-      const parts = path.split('/').filter(Boolean);
-      if (parts.length >= 2 && parts[0] === 'verify') {
-        return parts[1]; // hash / id
-      }
-
-      return null;
+    const parts = path.split('/').filter(Boolean);
+    if (parts.length >= 2 && parts[0] === 'verify') {
+      return parts[1]; // hash
     }
 
-    // Direct global identifier (hash / short id)
-    if (/^[a-zA-Z0-9_-]{16,128}$/.test(value)) {
-      return value;
-    }
-
-    return null;
-  } catch {
     return null;
   }
+
+  // Hash directo (global)
+  if (/^[a-zA-Z0-9_-]{16,128}$/.test(value)) {
+    return value;
+  }
+
+  return null;
 }
