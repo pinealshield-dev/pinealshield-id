@@ -76,3 +76,5 @@ yarn-error.log
 
 # Keystore
 android/app/*.keystore
+android/gradle.properties
+

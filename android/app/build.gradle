@@ -21,8 +21,8 @@ android {
         applicationId "com.pinealid"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 20260201
+        versionName "1.0.0"
     }
 
     signingConfigs {
@@ -34,11 +34,12 @@ android {
         }
 
         release {
-        storeFile file('pinealid-release.keystore')
-        storePassword System.getenv("PINEALID_KEYSTORE_PASSWORD")
-        keyAlias "pinealid-key"
-        keyPassword System.getenv("PINEALID_KEY_PASSWORD")
+            storeFile file('pinealid-release.keystore')
+            storePassword project.property("PINEALID_KEYSTORE_PASSWORD")
+            keyAlias "pinealid-key"
+            keyPassword project.property("PINEALID_KEY_PASSWORD")
         }
+
     }
     
 
