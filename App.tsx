@@ -1,3 +1,3 @@
-import { App as PinealApp } from '@/app';
+import { App as PinealApp } from './src/app';
 
 export default PinealApp;

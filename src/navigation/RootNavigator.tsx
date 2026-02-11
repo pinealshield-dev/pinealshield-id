@@ -1,10 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { HomeScreen } from '@/ui/screens/HomeScreen';
-import { ScanScreen } from '@/ui/screens/ScanScreen';
-import { ResultScreen } from '@/ui/screens/ResultScreen';
-import { OfflineScreen } from '@/ui/screens/OfflineScreen';
+import { HomeScreen } from '../ui/screens/HomeScreen';
+import { ScanScreen } from '../ui/screens/ScanScreen';
+import { ResultScreen } from '../ui/screens/ResultScreen';
+import { OfflineScreen } from '../ui/screens/OfflineScreen';
 
 export type RootStackParamList = {
   Home: undefined;
