@@ -1,28 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+} from 'react-native';
+import {
+  useRoute,
+  useNavigation,
+} from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/RootNavigator';
 import { verifyByHashPublic } from '@/services/verifyClient';
 import type { VerifyPublicResult } from '@/domain/verification';
+import { colors, spacing } from '@/theme';
+
+/* ===========================
+   TYPES
+=========================== */
 
 type Route = RouteProp<RootStackParamList, 'Result'>;
+type Navigation = NativeStackNavigationProp<
+  RootStackParamList,
+  'Result'
+>;
+
+/* ===========================
+   SCREEN
+=========================== */
 
 export function ResultScreen() {
   const route = useRoute<Route>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<Navigation>();
 
   const { status, raw } = route.params ?? {};
 
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<VerifyPublicResult | null>(null);
+  const [result, setResult] =
+    useState<VerifyPublicResult | null>(null);
 
   useEffect(() => {
-    // Estados que no requieren backend
-    if (status !== 'scanned' || !raw) {
-      return;
-    }
+    if (status !== 'scanned' || !raw) return;
 
     let isMounted = true;
     const controller = new AbortController();
@@ -49,113 +71,153 @@ export function ResultScreen() {
     };
   }, [status, raw]);
 
-  /* ===============================
-     Render helpers
-  =============================== */
+  /* ===========================
+     INVALID
+  =========================== */
 
   if (status === 'invalid') {
     return (
       <Centered>
-        <Text style={styles.title}>Código no válido</Text>
-        <Text style={styles.text}>
-          El código escaneado no corresponde a un identificador Pineal Shield.
+        <Text style={[styles.title, styles.error]}>
+          Código no válido
+        </Text>
+        <Text style={styles.subtitle}>
+          El identificador no pertenece a la infraestructura Pineal Shield.
         </Text>
       </Centered>
     );
   }
 
-  if (status !== 'scanned' || !raw) {
-    return (
-      <Centered>
-        <Text style={styles.title}>Estado no reconocido</Text>
-      </Centered>
-    );
-  }
+  /* ===========================
+     LOADING
+  =========================== */
 
   if (loading) {
     return (
       <Centered>
-        <ActivityIndicator size="large" />
-        <Text style={styles.text}>Verificando autenticidad…</Text>
+        <ActivityIndicator
+          size="large"
+          color={colors.primary}
+        />
+        <Text style={styles.subtitle}>
+          Verificando autenticidad…
+        </Text>
       </Centered>
     );
   }
+
+  /* ===========================
+     UNVERIFIED
+  =========================== */
 
   if (!result || result.status === 'unverified') {
     return (
       <Centered>
-        <Text style={[styles.title, styles.unverified]}>
+        <Text style={[styles.title, styles.error]}>
           Certificación no verificada
         </Text>
-        <Text style={styles.text}>
+        <Text style={styles.subtitle}>
           No existe un registro válido asociado a este identificador.
         </Text>
+
+        <Pressable
+          style={styles.retryButton}
+          onPress={() => navigation.navigate('Scan')}
+        >
+          <Text style={styles.retryText}>
+            Intentar nuevamente
+          </Text>
+        </Pressable>
       </Centered>
     );
   }
 
-  /* ===============================
+  /* ===========================
      VERIFIED
-  =============================== */
+  =========================== */
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, styles.verified]}>
-        Certificación válida · Pineal Shield®
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 60 }}
+    >
+      <Text style={[styles.title, styles.success]}>
+        Certificación válida
       </Text>
 
-      <View style={styles.card}>
-        <Label label="Tipo" value={capitalize(result.kind)} />
-        <Label label="Nombre" value={result.nombre} />
-        <Label
+      <Text style={styles.brand}>
+        Pineal Shield® Infrastructure
+      </Text>
+
+      <View style={styles.cardPrimary}>
+        <Field label="Tipo" value={capitalize(result.kind)} />
+        <Field label="Nombre" value={result.nombre} />
+        <Field
           label="Registrado"
           value={formatDate(result.issued_at)}
         />
         {result.brand_name && (
-          <Label label="Marca" value={result.brand_name} />
+          <Field label="Marca" value={result.brand_name} />
         )}
       </View>
 
       <View style={styles.cardSecondary}>
-        <Text style={styles.small}>
+        <Text style={styles.hashLabel}>
           Hash verificado
         </Text>
-        <Text style={styles.mono}>
-          {obfuscate(raw)}
+        <Text style={styles.hashValue}>
+          {obfuscate(raw!)}
         </Text>
       </View>
-    </View>
+
+      <Pressable
+        style={styles.retryButton}
+        onPress={() => navigation.navigate('Scan')}
+      >
+        <Text style={styles.retryText}>
+          Verificar otro código
+        </Text>
+      </Pressable>
+    </ScrollView>
   );
 }
 
-/* ===============================
-   UI Helpers
-=============================== */
+/* ===========================
+   COMPONENTS
+=========================== */
 
-function Centered({ children }: { children: React.ReactNode }) {
+function Centered({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <View style={styles.centered}>
-      {children}
-    </View>
+    <View style={styles.centered}>{children}</View>
   );
 }
 
-function Label({ label, value }: { label: string; value: string }) {
+function Field({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value}</Text>
+    <View style={{ marginBottom: spacing.md }}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <Text style={styles.fieldValue}>{value}</Text>
     </View>
   );
 }
 
-/* ===============================
-   Utils (local, pure)
-=============================== */
+/* ===========================
+   UTILS
+=========================== */
 
 function obfuscate(hash: string): string {
-  if (hash.length <= 10) return hash;
-  return `${hash.slice(0, 4)}…${hash.slice(-4)}`;
+  if (hash.length <= 12) return hash;
+  return `${hash.slice(0, 6)}…${hash.slice(-6)}`;
 }
 
 function formatDate(iso: string): string {
@@ -170,72 +232,107 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-/* ===============================
-   Styles
-=============================== */
+/* ===========================
+   STYLES
+=========================== */
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    backgroundColor: '#0b0b0b',
+    backgroundColor: colors.background,
+    padding: spacing.lg,
   },
+
   centered: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#0b0b0b',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    padding: spacing.lg,
   },
+
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '600',
-    color: '#eaeaea',
-    marginBottom: 12,
+    marginBottom: spacing.sm,
     textAlign: 'center',
   },
-  verified: {
-    color: '#19c37d',
-  },
-  unverified: {
-    color: '#e5533d',
-  },
-  text: {
-    color: '#bdbdbd',
+
+  brand: {
+    color: colors.textMuted,
+    fontSize: 13,
+    letterSpacing: 0.8,
+    marginBottom: spacing.xl,
     textAlign: 'center',
   },
-  card: {
-    borderWidth: 1,
-    borderColor: '#1f1f1f',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
+
+  success: {
+    color: colors.primary,
   },
-  cardSecondary: {
-    marginTop: 16,
-    padding: 12,
-    borderRadius: 8,
+
+  error: {
+    color: '#E5533D',
+  },
+
+  subtitle: {
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+  },
+
+  cardPrimary: {
+    borderRadius: 16,
+    padding: spacing.lg,
     backgroundColor: '#111',
+    borderWidth: 1,
+    borderColor: '#1c1c1c',
+    marginBottom: spacing.lg,
   },
-  row: {
-    marginBottom: 8,
+
+  cardSecondary: {
+    borderRadius: 14,
+    padding: spacing.md,
+    backgroundColor: '#0f0f0f',
+    borderWidth: 1,
+    borderColor: '#1c1c1c',
+    marginBottom: spacing.xl,
   },
-  label: {
-    color: '#8a8a8a',
+
+  fieldLabel: {
+    color: colors.textMuted,
     fontSize: 12,
     marginBottom: 2,
   },
-  value: {
-    color: '#eaeaea',
-    fontSize: 14,
+
+  fieldValue: {
+    color: colors.textPrimary,
+    fontSize: 15,
+    fontWeight: '500',
   },
-  small: {
-    color: '#8a8a8a',
+
+  hashLabel: {
+    color: colors.textMuted,
     fontSize: 12,
     marginBottom: 4,
   },
-  mono: {
+
+  hashValue: {
+    color: colors.textPrimary,
     fontFamily: 'monospace',
-    color: '#eaeaea',
+  },
+
+  retryButton: {
+    alignSelf: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+
+  retryText: {
+    color: colors.primary,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });
