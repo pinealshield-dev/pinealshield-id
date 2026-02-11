@@ -32,7 +32,15 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+
+        release {
+        storeFile file('pinealid-release.keystore')
+        storePassword System.getenv("PINEALID_KEYSTORE_PASSWORD")
+        keyAlias "pinealid-key"
+        keyPassword System.getenv("PINEALID_KEY_PASSWORD")
+        }
     }
+    
 
     buildTypes {
         debug {
@@ -41,10 +49,11 @@ android {
         }
         release {
             debuggable false
-            signingConfig signingConfigs.debug
-            minifyEnabled enableProguardInReleaseBuilds
+            signingConfig signingConfigs.release
+            minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+
     }
 }
 
