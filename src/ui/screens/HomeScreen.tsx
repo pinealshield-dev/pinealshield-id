@@ -52,12 +52,20 @@ export function HomeScreen() {
         </Text>
       </Pressable>
 
+      <Pressable onPress={() => navigation.navigate('Legal')}>
+        <Text style={styles.legalLink}>
+          Legal · Privacidad
+        </Text>
+      </Pressable>
+
       {/* Version */}
       <Text style={styles.version}>
         PinealID · 2026.02
       </Text>
     </View>
+
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -68,7 +76,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
   },
-
+  
   logo: {
     width: 88,
     height: 88,
@@ -116,4 +124,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 0.5,
   },
+
+   legalLink: {
+    marginTop: spacing.lg,
+    color: colors.textMuted,
+    fontSize: 12,
+    letterSpacing: 0.4,
+    },
 });
