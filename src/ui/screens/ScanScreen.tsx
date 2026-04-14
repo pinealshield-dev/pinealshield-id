@@ -1,7 +1,4 @@
-// src/ui/screens/ScanScreen.tsx
-
-
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,25 +7,28 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
+
 import {
   Camera,
   useCameraDevice,
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
+
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/RootNavigator';
 import { parseIdentifier } from '@/utils/parseIdentifier';
-import { colors, spacing, typography } from '@/theme';
+import { colors, spacing } from '@/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Scan'>;
 
 export function ScanScreen() {
   const navigation = useNavigation<Nav>();
   const device = useCameraDevice('back');
-  const { hasPermission, requestPermission } = useCameraPermission();
+  const { hasPermission, requestPermission } =
+    useCameraPermission();
 
   const [hasScanned, setHasScanned] = useState(false);
 
@@ -37,14 +37,11 @@ export function ScanScreen() {
   }, [hasPermission, requestPermission]);
 
   const onCodeScanned = (raw: string) => {
-    if (hasScanned) return; // 🔥 BLOQUEO CRÍTICO
+    if (hasScanned) return;
 
     setHasScanned(true);
 
     const identifier = parseIdentifier(raw);
-
-    console.log('[SCAN RAW]', raw);
-    console.log('[SCAN PARSED]', identifier);
 
     if (!identifier) {
       navigation.replace('Result', { status: 'invalid' });
@@ -60,264 +57,287 @@ export function ScanScreen() {
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: (codes) => {
-      if (codes.length > 0) {
-        const value = codes[0].value;
-        if (value) {
-          onCodeScanned(value);
-        }
-      }
+      const value = codes?.[0]?.value;
+      if (value) onCodeScanned(value);
     },
   });
-
-  /* =======================================
-     CAMERA NOT AVAILABLE
-  ======================================= */
 
   if (!device) {
     return (
       <CenteredBlock
         title="Cámara no disponible"
-        subtitle="No fue posible acceder al dispositivo de cámara."
+        subtitle="No fue posible acceder al módulo de cámara."
       />
     );
   }
 
-  /* =======================================
-     PERMISSION SCREEN (Premium)
-  ======================================= */
-
   if (!hasPermission) {
     return (
-      <View style={styles.permissionContainer}>
-        <StatusBar barStyle="light-content" backgroundColor={colors.background}
-        />
-
-        <Image
-          source={require('@/assets/images/pinealid-logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-
-        <Text style={[styles.title, typography.title]}>
-          Acceso a cámara requerido
-        </Text>
-
-        <Text style={[styles.subtitle, typography.body]}>
-          PinealID necesita acceso a la cámara para
-          verificar certificaciones digitales.
-        </Text>
-
-        <Pressable
-          onPress={requestPermission}
-          style={({ pressed }) => [
-            styles.button,
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          <Text style={styles.buttonText}>
-            Conceder acceso
-          </Text>
-        </Pressable>
-
-        <Text style={styles.version}>
-          PinealID · 2026.02
-        </Text>
-      </View>
+      <CenteredBlock
+        title="Acceso requerido"
+        subtitle="PinealID necesita acceso a cámara para leer certificaciones oficiales."
+        buttonText="Conceder acceso"
+        onPress={requestPermission}
+      />
     );
   }
 
-  /* =======================================
-     CAMERA ACTIVE
-  ======================================= */
-
   return (
-    <View style={{ flex: 1, backgroundColor: '#000' }}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
       <Camera
-        style={{ flex: 1 }}
+        style={StyleSheet.absoluteFill}
         device={device}
         isActive={!hasScanned}
         codeScanner={codeScanner}
       />
 
-      <View style={styles.overlay} pointerEvents="none">
-        <Text style={styles.scanTitle}>
-          Escanea el código de certificación
+      <View style={styles.dimTop} />
+      <View style={styles.dimBottom} />
+
+      <View style={styles.header}>
+        <Text style={styles.eyebrow}>
+          PINEAL SHIELD REGISTRY
         </Text>
 
-        <View style={styles.scanFrame}>
-          <View style={cornerStyle('topLeft')} />
-          <View style={cornerStyle('topRight')} />
-          <View style={cornerStyle('bottomLeft')} />
-          <View style={cornerStyle('bottomRight')} />
+        <Text style={styles.title}>
+          Escanear certificación
+        </Text>
+
+        <Text style={styles.subtitle}>
+          Alinea el código dentro del marco
+        </Text>
+      </View>
+
+      <View style={styles.centerArea}>
+        <View style={styles.frame}>
+          <Corner pos="tl" />
+          <Corner pos="tr" />
+          <Corner pos="bl" />
+          <Corner pos="br" />
         </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          Verificación directa contra Pineal Shield
+        </Text>
       </View>
     </View>
   );
 }
 
-/* =======================================
-   REUSABLE CENTERED BLOCK
-======================================= */
-
 function CenteredBlock({
   title,
   subtitle,
+  buttonText,
+  onPress,
 }: {
   title: string;
   subtitle: string;
+  buttonText?: string;
+  onPress?: () => void;
 }) {
   return (
-    <View style={styles.permissionContainer}>
-      <Text style={[styles.title, typography.title]}>
-        {title}
-      </Text>
-      <Text style={[styles.subtitle, typography.body]}>
-        {subtitle}
-      </Text>
+    <View style={styles.blockContainer}>
+      <Image
+        source={require('@/assets/images/pinealid-logo.png')}
+        style={styles.logo}
+      />
+
+      <Text style={styles.blockTitle}>{title}</Text>
+      <Text style={styles.blockText}>{subtitle}</Text>
+
+      {buttonText && onPress && (
+        <Pressable
+          onPress={onPress}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && { opacity: 0.9 },
+          ]}
+        >
+          <Text style={styles.buttonText}>
+            {buttonText}
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 }
 
-/* =======================================
-   STYLES
-======================================= */
+function Corner({
+  pos,
+}: {
+  pos: 'tl' | 'tr' | 'bl' | 'br';
+}) {
+  const styleMap = {
+    tl: styles.tl,
+    tr: styles.tr,
+    bl: styles.bl,
+    br: styles.br,
+  };
+
+  return <View style={[styles.corner, styleMap[pos]]} />;
+}
 
 const styles = StyleSheet.create({
-  permissionContainer: {
+  container: {
     flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
+    backgroundColor: '#000',
   },
 
-  logo: {
-    width: 88,
-    height: 88,
-    marginBottom: spacing.lg,
-  },
-
-  title: {
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
-
-  subtitle: {
-    color: colors.textSecondary,
-    opacity: 0.75,
-    textAlign: 'center',
-    marginBottom: spacing.xl,
-  },
-
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: 16,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-
-  buttonPressed: {
-    opacity: 0.85,
-  },
-
-  buttonText: {
-    color: '#000',
-    fontWeight: '600',
-    letterSpacing: 0.4,
-  },
-
-  version: {
-    position: 'absolute',
-    bottom: 24,
-    color: colors.textMuted,
-    fontSize: 11,
-    letterSpacing: 0.5,
-  },
-
-  overlay: {
+  dimTop: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
+    height: '22%',
+    backgroundColor: 'rgba(0,0,0,0.55)',
+  },
+
+  dimBottom: {
+    position: 'absolute',
     bottom: 0,
+    left: 0,
+    right: 0,
+    height: '28%',
+    backgroundColor: 'rgba(0,0,0,0.58)',
+  },
+
+  header: {
+    position: 'absolute',
+    top: 58,
+    left: 24,
+    right: 24,
+    alignItems: 'center',
+  },
+
+  eyebrow: {
+    color: '#9ca3af',
+    fontSize: 10,
+    letterSpacing: 2.4,
+    marginBottom: 8,
+  },
+
+  title: {
+    color: '#fff',
+    fontSize: 26,
+    fontWeight: '700',
+  },
+
+  subtitle: {
+    color: '#d1d5db',
+    fontSize: 13,
+    marginTop: 8,
+  },
+
+  centerArea: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
-  scanTitle: {
-    position: 'absolute',
-    top: 80,
-    color: '#F3F4F6',
-    fontSize: 16,
-    letterSpacing: 0.5,
+  frame: {
+    width: 270,
+    height: 270,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
 
-  scanFrame: {
-    width: 260,
-    height: 260,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#1F2937',
-    backgroundColor: 'rgba(0,0,0,0.25)',
+  corner: {
+    position: 'absolute',
+    width: 34,
+    height: 34,
+    borderColor: colors.primary,
+  },
+
+  tl: {
+    top: -1,
+    left: -1,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderTopLeftRadius: 16,
+  },
+
+  tr: {
+    top: -1,
+    right: -1,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+    borderTopRightRadius: 16,
+  },
+
+  bl: {
+    bottom: -1,
+    left: -1,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+    borderBottomLeftRadius: 16,
+  },
+
+  br: {
+    bottom: -1,
+    right: -1,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+    borderBottomRightRadius: 16,
+  },
+
+  footer: {
+    position: 'absolute',
+    bottom: 34,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+  },
+
+  footerText: {
+    color: '#d1d5db',
+    fontSize: 12,
+  },
+
+  blockContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+
+  logo: {
+    width: 84,
+    height: 84,
+    marginBottom: 20,
+  },
+
+  blockTitle: {
+    color: colors.textPrimary,
+    fontSize: 28,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+
+  blockText: {
+    color: colors.textSecondary,
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 21,
+    marginBottom: 22,
+  },
+
+  button: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+
+  buttonText: {
+    color: '#05110e',
+    fontWeight: '700',
   },
 });
-
-const cornerStyle = (
-  position:
-    | 'topLeft'
-    | 'topRight'
-    | 'bottomLeft'
-    | 'bottomRight',
-) => {
-  const base = {
-    position: 'absolute' as const,
-    width: 28,
-    height: 28,
-    borderColor: colors.primary,
-  };
-
-  switch (position) {
-    case 'topLeft':
-      return {
-        ...base,
-        top: -1,
-        left: -1,
-        borderTopWidth: 3,
-        borderLeftWidth: 3,
-        borderTopLeftRadius: 12,
-      };
-    case 'topRight':
-      return {
-        ...base,
-        top: -1,
-        right: -1,
-        borderTopWidth: 3,
-        borderRightWidth: 3,
-        borderTopRightRadius: 12,
-      };
-    case 'bottomLeft':
-      return {
-        ...base,
-        bottom: -1,
-        left: -1,
-        borderBottomWidth: 3,
-        borderLeftWidth: 3,
-        borderBottomLeftRadius: 12,
-      };
-    case 'bottomRight':
-      return {
-        ...base,
-        bottom: -1,
-        right: -1,
-        borderBottomWidth: 3,
-        borderRightWidth: 3,
-        borderBottomRightRadius: 12,
-      };
-  }
-};

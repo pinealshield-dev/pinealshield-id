@@ -8,10 +8,12 @@ import {
   Pressable,
   ScrollView,
 } from 'react-native';
+
 import {
   useRoute,
   useNavigation,
 } from '@react-navigation/native';
+
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -21,14 +23,14 @@ import type { VerifyPublicResult } from '@/domain/verification';
 import { colors, spacing } from '@/theme';
 
 type Route = RouteProp<RootStackParamList, 'Result'>;
-type Navigation = NativeStackNavigationProp<
+type Nav = NativeStackNavigationProp<
   RootStackParamList,
   'Result'
 >;
 
 export function ResultScreen() {
   const route = useRoute<Route>();
-  const navigation = useNavigation<Navigation>();
+  const navigation = useNavigation<Nav>();
 
   const { status, raw } = route.params ?? {};
 
@@ -39,14 +41,14 @@ export function ResultScreen() {
   useEffect(() => {
     if (status !== 'scanned' || !raw) return;
 
-    let isMounted = true;
+    let mounted = true;
     const controller = new AbortController();
 
     setLoading(true);
 
     verifyByHashPublic(raw, controller.signal)
       .then((res) => {
-        if (!isMounted) return;
+        if (!mounted) return;
 
         setResult(res);
 
@@ -60,176 +62,141 @@ export function ResultScreen() {
         }
       })
       .catch(() => {
-        if (!isMounted) return;
-        setResult({ status: 'unverified' });
+        if (mounted) setResult({ status: 'unverified' });
       })
       .finally(() => {
-        if (!isMounted) return;
-        setLoading(false);
+        if (mounted) setLoading(false);
       });
 
     return () => {
-      isMounted = false;
+      mounted = false;
       controller.abort();
     };
   }, [status, raw]);
 
-  /* =========================== */
-
   if (status === 'invalid') {
-    return (
-      <Centered>
-        <Text style={[styles.title, styles.error]}>
-          Identificador inválido
-        </Text>
-        <Text style={styles.subtitle}>
-          El código no corresponde a un registro Pineal Shield.
-        </Text>
-      </Centered>
-    );
+    return <StateScreen title="Código inválido" subtitle="El identificador no corresponde a un registro Pineal Shield." />;
   }
 
   if (loading) {
     return (
-      <Centered>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.subtitle}>
-          Verificando registro…
-        </Text>
-      </Centered>
+      <StateScreen
+        loading
+        title="Verificando"
+        subtitle="Consultando infraestructura Pineal Shield..."
+      />
     );
   }
 
   if (!result || result.status === 'unverified') {
     return (
-      <Centered>
-        <Text style={[styles.title, styles.error]}>
-          Registro no encontrado
-        </Text>
-        <Text style={styles.subtitle}>
-          No existe un registro verificable en este momento.
-        </Text>
-
-        <Pressable
-          style={styles.retryButton}
-          onPress={() => navigation.replace('Scan')}
-        >
-          <Text style={styles.retryText}>
-            Intentar nuevamente
-          </Text>
-        </Pressable>
-      </Centered>
+      <StateScreen
+        title="Registro no encontrado"
+        subtitle="No existe un registro verificable en este momento."
+        button="Intentar nuevamente"
+        onPress={() => navigation.replace('Scan')}
+      />
     );
   }
 
   const isVerified = result.status === 'verified';
-  const chainValid = isVerified ? result.chain_valid ?? true : true;
 
-  const isDegraded = isVerified && !chainValid;
+  const chainValid = isVerified
+    ? result.chain_valid ?? true
+    : true;
+
 
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 60 }}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
     >
-      {/* HEADER */}
-      <Text style={styles.headerBrand}>
+      <Text style={styles.eyebrow}>
         PINEAL SHIELD REGISTRY
       </Text>
 
-      <Text style={[styles.title, styles.success]}>
-        {chainValid ? 'REGISTRO VERIFICADO' : 'REGISTRO DETECTADO'}
+      <Text style={styles.title}>
+        {chainValid
+          ? 'Registro verificado'
+          : 'Registro detectado'}
       </Text>
 
-      {/* EXISTENCIA */}
-      <View
-      style={[
-        styles.statusBox,
-        isDegraded && styles.statusDegraded,
-      ]}
->
-        <Text style={styles.statusTitle}>
-          {chainValid
-            ? 'Estado del registro: ACTIVO'
-            : 'Estado del registro: ACTIVO (integridad no verificada)'}
-        </Text>
-
-        <Text style={styles.statusText}>
-          {chainValid
-            ? 'Este registro existe dentro de la infraestructura Pineal Shield.'
-            : 'El registro existe, pero su consistencia técnica no puede confirmarse completamente.'}
-        </Text>
-      </View>
-
-      {/* 🔴 INTEGRIDAD (NÚCLEO DIFERENCIADOR) */}
       <View
         style={[
-          styles.integrityBox,
-          chainValid ? styles.valid : styles.warning,
+          styles.hero,
+          chainValid
+            ? styles.heroValid
+            : styles.heroWarn,
         ]}
       >
-        <Text style={styles.integrityLabel}>
-          INTEGRIDAD CRIPTOGRÁFICA
+        <Text style={styles.heroLabel}>
+          Integridad criptográfica
         </Text>
 
-        <Text style={styles.integrityValue}>
+        <Text style={styles.heroValue}>
           {chainValid
             ? 'CADENA CONSISTENTE'
-            : 'CONSISTENCIA NO VERIFICABLE'}
+            : 'CONSISTENCIA LIMITADA'}
         </Text>
 
-        <Text style={styles.integrityText}>
+        <Text style={styles.heroText}>
           {chainValid
-            ? 'El registro forma parte de una secuencia de eventos consistente dentro del sistema.'
-            : 'Se detectaron inconsistencias en la secuencia de eventos o no es posible validar su continuidad completa.'}
+            ? 'El registro pertenece a una secuencia verificable dentro del sistema.'
+            : 'El registro existe, pero la continuidad técnica no pudo validarse completamente.'}
         </Text>
       </View>
 
-      {/* ARTIFACT */}
-      <View style={styles.cardPrimary}>
-        <Field label="Tipo" value={capitalize(result.kind)} />
+      <Card>
+        <Field label="Tipo" value={cap(result.kind)} />
         <Field label="Nombre" value={result.nombre} />
         <Field
           label="Emitido"
-          value={formatDate(result.issued_at)}
+          value={date(result.issued_at)}
         />
-        <Field label="Firma" value={result.signature} />
-        <Field label="Verificación" value="Pineal Shield Registry" />
-        {result.brand_name && (
-          <Field label="Marca" value={result.brand_name} />
-        )}
-      </View>
+        <Field
+          label="Firma"
+          value={result.signature ?? 'Pineal Shield Registry'}
+        />
+        <Field
+          label="Verificación"
+          value="Pineal Shield Registry"
+        />
 
-      {/* IDENTIDAD CRIPTOGRÁFICA */}
-      <View style={styles.cardSecondary}>
-        <Text style={styles.hashLabel}>
-          Identificador criptográfico
-        </Text>
-        <Text style={styles.hashValue}>
-          {obfuscate(raw!)}
-        </Text>
-      </View>
+        {result.brand_name ? (
+          <Field
+            label="Marca"
+            value={result.brand_name}
+          />
+        ) : null}
+      </Card>
 
-      {/* HISTORIAL (ABSTRACCIÓN CONTROLADA) */}
-      <View style={styles.historyBox}>
-        <Text style={styles.historyTitle}>
+      <Card>
+        <Field
+          label="Identificador"
+          value={mask(raw!)}
+        />
+      </Card>
+
+      <Card>
+        <Text style={styles.sectionTitle}>
           Actividad de verificación
         </Text>
 
-        <Text style={styles.historyText}>
+        <Text style={styles.sectionText}>
           Este registro ha sido consultado dentro de la infraestructura Pineal Shield.
         </Text>
 
-        <Text style={styles.historySub}>
-          La visibilidad detallada puede estar restringida por razones de seguridad.
+        <Text style={styles.sectionMuted}>
+          El detalle visible puede limitarse por seguridad.
         </Text>
-      </View>
+      </Card>
 
       <Pressable
-        style={styles.retryButton}
+        style={styles.button}
         onPress={() => navigation.replace('Scan')}
       >
-        <Text style={styles.retryText}>
+        <Text style={styles.buttonText}>
           Verificar otro código
         </Text>
       </Pressable>
@@ -237,225 +204,218 @@ export function ResultScreen() {
   );
 }
 
-/* =========================== */
+function StateScreen({
+  title,
+  subtitle,
+  loading,
+  button,
+  onPress,
+}: any) {
+  return (
+    <View style={styles.center}>
+      {loading && (
+        <ActivityIndicator
+          size="large"
+          color={colors.primary}
+        />
+      )}
 
-function Centered({ children }: { children: React.ReactNode }) {
-  return <View style={styles.centered}>{children}</View>;
+      <Text style={styles.stateTitle}>{title}</Text>
+      <Text style={styles.stateSub}>{subtitle}</Text>
+
+      {button && (
+        <Pressable
+          style={styles.button}
+          onPress={onPress}
+        >
+          <Text style={styles.buttonText}>
+            {button}
+          </Text>
+        </Pressable>
+      )}
+    </View>
+  );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Card({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <View style={styles.card}>{children}</View>;
+}
+
+function Field({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
-    <View style={{ marginBottom: spacing.md }}>
+    <View style={{ marginBottom: 14 }}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <Text style={styles.fieldValue}>{value}</Text>
     </View>
   );
 }
 
-/* =========================== */
-
-function obfuscate(hash: string): string {
-  if (hash.length <= 12) return hash;
-  return `${hash.slice(0, 6)}…${hash.slice(-6)}`;
+function mask(v: string) {
+  if (v.length <= 12) return v;
+  return `${v.slice(0, 6)}…${v.slice(-6)}`;
 }
 
-function formatDate(iso: string): string {
+function cap(v: string) {
+  return v.charAt(0).toUpperCase() + v.slice(1);
+}
+
+function date(v: string) {
   try {
-    return new Date(iso).toLocaleString();
+    return new Date(v).toLocaleString();
   } catch {
-    return iso;
+    return v;
   }
 }
-
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-/* =========================== */
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: spacing.lg,
   },
 
-  centered: {
+  content: {
+    padding: spacing.lg,
+    paddingBottom: 40,
+  },
+
+  center: {
     flex: 1,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
     padding: spacing.lg,
   },
 
-  headerBrand: {
+  eyebrow: {
     color: colors.textMuted,
-    fontSize: 11,
-    letterSpacing: 2,
-    marginBottom: 6,
-    textAlign: 'center',
+    fontSize: 10,
+    letterSpacing: 2.4,
+    marginBottom: 10,
   },
 
   title: {
-    fontSize: 22,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: spacing.md,
+    color: colors.textPrimary,
+    fontSize: 30,
+    fontWeight: '700',
+    marginBottom: 18,
   },
 
-  success: {
-    color: colors.primary,
-  },
-
-  error: {
-    color: '#E5533D',
-  },
-
-  subtitle: {
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: spacing.sm,
-  },
-
-  statusBox: {
-    borderRadius: 12,
-    padding: spacing.md,
-    backgroundColor: '#0f2a1f',
+  hero: {
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#1f5c45',
-    marginBottom: spacing.md,
   },
 
-  statusTitle: {
-    color: colors.primary,
-    fontWeight: '600',
-    marginBottom: 4,
+  heroValid: {
+    backgroundColor: '#0b2219',
+    borderColor: '#114c38',
   },
 
-  statusText: {
+  heroWarn: {
+    backgroundColor: '#2b210c',
+    borderColor: '#7a6419',
+  },
+
+  heroLabel: {
+    color: colors.textMuted,
+    fontSize: 11,
+    marginBottom: 6,
+  },
+
+  heroValue: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+
+  heroText: {
     color: colors.textSecondary,
     fontSize: 13,
+    lineHeight: 20,
   },
 
-  statusDegraded: {
-    backgroundColor: '#2a210c',
-    borderColor: '#8a6d1a',
-  },
-
-  integrityBox: {
-    borderRadius: 12,
-    padding: spacing.md,
+  card: {
+    borderRadius: 18,
+    padding: 18,
+    backgroundColor: 'rgba(255,255,255,0.02)',
     borderWidth: 1,
-    marginBottom: spacing.lg,
-  },
-
-  valid: {
-    borderColor: '#1f5c45',
-    backgroundColor: '#0b1f18',
-  },
-
-  warning: {
-    borderColor: '#8a6d1a',
-    backgroundColor: '#2a210c',
-  },
-
-  integrityLabel: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginBottom: 4,
-  },
-
-  integrityValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 4,
-    color: colors.textPrimary,
-  },
-
-  integrityText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-
-  cardPrimary: {
-    borderRadius: 16,
-    padding: spacing.lg,
-    backgroundColor: '#111',
-    borderWidth: 1,
-    borderColor: '#1c1c1c',
-    marginBottom: spacing.lg,
-  },
-
-  cardSecondary: {
-    borderRadius: 14,
-    padding: spacing.md,
-    backgroundColor: '#0f0f0f',
-    borderWidth: 1,
-    borderColor: '#1c1c1c',
-    marginBottom: spacing.xl,
+    borderColor: 'rgba(255,255,255,0.06)',
+    marginBottom: 14,
   },
 
   fieldLabel: {
     color: colors.textMuted,
     fontSize: 12,
+    marginBottom: 3,
   },
 
   fieldValue: {
     color: colors.textPrimary,
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 
-  hashLabel: {
+  sectionTitle: {
+    color: colors.textPrimary,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+
+  sectionText: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 20,
+  },
+
+  sectionMuted: {
     color: colors.textMuted,
     fontSize: 11,
-    marginBottom: 4,
+    marginTop: 8,
   },
 
-  hashValue: {
+  stateTitle: {
     color: colors.textPrimary,
-    fontFamily: 'monospace',
+    fontSize: 26,
+    fontWeight: '700',
+    marginTop: 14,
+    textAlign: 'center',
   },
 
-  retryButton: {
+  stateSub: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 21,
+    marginTop: 8,
+    maxWidth: 320,
+  },
+
+  button: {
+    marginTop: 22,
     alignSelf: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 14,
     borderWidth: 1,
     borderColor: colors.primary,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
   },
 
-  retryText: {
+  buttonText: {
     color: colors.primary,
-    fontWeight: '600',
-  },
-
-  historyBox: {
-    borderRadius: 14,
-    padding: spacing.md,
-    backgroundColor: '#0d0d0d',
-    borderWidth: 1,
-    borderColor: '#1c1c1c',
-    marginBottom: spacing.xl,
-  },
-
-  historyTitle: {
-    color: colors.textPrimary,
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
-
-  historyText: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 18,
-  },
-
-  historySub: {
-    marginTop: 6,
-    color: colors.textMuted,
-    fontSize: 11,
+    fontWeight: '700',
+    fontSize: 15,
   },
 });

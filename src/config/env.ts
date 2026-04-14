@@ -16,5 +16,6 @@ export const ENV = {
 
    // 🆕 versión de la app (CRÍTICO para trazabilidad)
   APP_VERSION: '1.0.3',
+  BUILD_VERSION: '2026.02',
   
 };

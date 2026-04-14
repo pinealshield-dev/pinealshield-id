@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import {
   View,
   Text,
@@ -6,14 +6,25 @@ import {
   Pressable,
   StyleSheet,
   StatusBar,
-} from 'react-native';
+} from 'react-native'
 
-import { colors, spacing, typography } from '@/theme';
+import { useNavigation } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import type { RootStackParamList } from '../../navigation/RootNavigator'
+
+import { colors, spacing, typography } from '@/theme'
+
+type Nav = NativeStackNavigationProp<RootStackParamList, 'Offline'>
 
 export function OfflineScreen() {
+  const navigation = useNavigation<Nav>()
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={colors.background}
+      />
 
       <Image
         source={require('@/assets/images/pinealid-logo.png')}
@@ -39,9 +50,7 @@ export function OfflineScreen() {
           styles.button,
           pressed && styles.buttonPressed,
         ]}
-        onPress={() => {
-          // Aquí puedes redirigir a Scan o Home si quieres
-        }}
+        onPress={() => navigation.navigate('Home')}
       >
         <Text style={styles.buttonText}>
           Reintentar verificación
@@ -52,7 +61,7 @@ export function OfflineScreen() {
         PinealID · 2026.02
       </Text>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -117,4 +126,4 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 0.5,
   },
-});
+})
