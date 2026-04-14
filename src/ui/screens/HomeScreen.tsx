@@ -62,6 +62,10 @@ export function HomeScreen() {
       <Text style={styles.version}>
         PinealID · 2026.02
       </Text>
+
+      <Text style={{ color: 'white', marginTop: 20 }}>
+        PinealID v1.0.3
+      </Text>
     </View>
 
   );

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { saveHistory } from '@/services/history';
 import {
   View,
   Text,
@@ -19,19 +20,11 @@ import { verifyByHashPublic } from '@/services/verifyClient';
 import type { VerifyPublicResult } from '@/domain/verification';
 import { colors, spacing } from '@/theme';
 
-/* ===========================
-   TYPES
-=========================== */
-
 type Route = RouteProp<RootStackParamList, 'Result'>;
 type Navigation = NativeStackNavigationProp<
   RootStackParamList,
   'Result'
 >;
-
-/* ===========================
-   SCREEN
-=========================== */
 
 export function ResultScreen() {
   const route = useRoute<Route>();
@@ -54,7 +47,17 @@ export function ResultScreen() {
     verifyByHashPublic(raw, controller.signal)
       .then((res) => {
         if (!isMounted) return;
+
         setResult(res);
+
+        if (res.status === 'verified') {
+          saveHistory({
+            hash: raw,
+            nombre: res.nombre,
+            fecha: new Date().toISOString(),
+            status: res.status,
+          });
+        }
       })
       .catch(() => {
         if (!isMounted) return;
@@ -71,58 +74,45 @@ export function ResultScreen() {
     };
   }, [status, raw]);
 
-  /* ===========================
-     INVALID
-  =========================== */
+  /* =========================== */
 
   if (status === 'invalid') {
     return (
       <Centered>
         <Text style={[styles.title, styles.error]}>
-          Código no válido
+          Identificador inválido
         </Text>
         <Text style={styles.subtitle}>
-          El identificador no pertenece a la infraestructura Pineal Shield.
+          El código no corresponde a un registro Pineal Shield.
         </Text>
       </Centered>
     );
   }
-
-  /* ===========================
-     LOADING
-  =========================== */
 
   if (loading) {
     return (
       <Centered>
-        <ActivityIndicator
-          size="large"
-          color={colors.primary}
-        />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.subtitle}>
-          Verificando autenticidad…
+          Verificando registro…
         </Text>
       </Centered>
     );
   }
-
-  /* ===========================
-     UNVERIFIED
-  =========================== */
 
   if (!result || result.status === 'unverified') {
     return (
       <Centered>
         <Text style={[styles.title, styles.error]}>
-          Certificación no verificada
+          Registro no encontrado
         </Text>
         <Text style={styles.subtitle}>
-          No existe un registro válido asociado a este identificador.
+          No existe un registro verificable en este momento.
         </Text>
 
         <Pressable
           style={styles.retryButton}
-          onPress={() => navigation.navigate('Scan')}
+          onPress={() => navigation.replace('Scan')}
         >
           <Text style={styles.retryText}>
             Intentar nuevamente
@@ -132,47 +122,112 @@ export function ResultScreen() {
     );
   }
 
-  /* ===========================
-     VERIFIED
-  =========================== */
+  const isVerified = result.status === 'verified';
+  const chainValid = isVerified ? result.chain_valid ?? true : true;
+
+  const isDegraded = isVerified && !chainValid;
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 60 }}
     >
+      {/* HEADER */}
+      <Text style={styles.headerBrand}>
+        PINEAL SHIELD REGISTRY
+      </Text>
+
       <Text style={[styles.title, styles.success]}>
-        Certificación válida
+        {chainValid ? 'REGISTRO VERIFICADO' : 'REGISTRO DETECTADO'}
       </Text>
 
-      <Text style={styles.brand}>
-        Pineal Shield® Infrastructure
-      </Text>
+      {/* EXISTENCIA */}
+      <View
+      style={[
+        styles.statusBox,
+        isDegraded && styles.statusDegraded,
+      ]}
+>
+        <Text style={styles.statusTitle}>
+          {chainValid
+            ? 'Estado del registro: ACTIVO'
+            : 'Estado del registro: ACTIVO (integridad no verificada)'}
+        </Text>
 
+        <Text style={styles.statusText}>
+          {chainValid
+            ? 'Este registro existe dentro de la infraestructura Pineal Shield.'
+            : 'El registro existe, pero su consistencia técnica no puede confirmarse completamente.'}
+        </Text>
+      </View>
+
+      {/* 🔴 INTEGRIDAD (NÚCLEO DIFERENCIADOR) */}
+      <View
+        style={[
+          styles.integrityBox,
+          chainValid ? styles.valid : styles.warning,
+        ]}
+      >
+        <Text style={styles.integrityLabel}>
+          INTEGRIDAD CRIPTOGRÁFICA
+        </Text>
+
+        <Text style={styles.integrityValue}>
+          {chainValid
+            ? 'CADENA CONSISTENTE'
+            : 'CONSISTENCIA NO VERIFICABLE'}
+        </Text>
+
+        <Text style={styles.integrityText}>
+          {chainValid
+            ? 'El registro forma parte de una secuencia de eventos consistente dentro del sistema.'
+            : 'Se detectaron inconsistencias en la secuencia de eventos o no es posible validar su continuidad completa.'}
+        </Text>
+      </View>
+
+      {/* ARTIFACT */}
       <View style={styles.cardPrimary}>
         <Field label="Tipo" value={capitalize(result.kind)} />
         <Field label="Nombre" value={result.nombre} />
         <Field
-          label="Registrado"
+          label="Emitido"
           value={formatDate(result.issued_at)}
         />
+        <Field label="Firma" value={result.signature} />
+        <Field label="Verificación" value="Pineal Shield Registry" />
         {result.brand_name && (
           <Field label="Marca" value={result.brand_name} />
         )}
       </View>
 
+      {/* IDENTIDAD CRIPTOGRÁFICA */}
       <View style={styles.cardSecondary}>
         <Text style={styles.hashLabel}>
-          Hash verificado
+          Identificador criptográfico
         </Text>
         <Text style={styles.hashValue}>
           {obfuscate(raw!)}
         </Text>
       </View>
 
+      {/* HISTORIAL (ABSTRACCIÓN CONTROLADA) */}
+      <View style={styles.historyBox}>
+        <Text style={styles.historyTitle}>
+          Actividad de verificación
+        </Text>
+
+        <Text style={styles.historyText}>
+          Este registro ha sido consultado dentro de la infraestructura Pineal Shield.
+        </Text>
+
+        <Text style={styles.historySub}>
+          La visibilidad detallada puede estar restringida por razones de seguridad.
+        </Text>
+      </View>
+
       <Pressable
         style={styles.retryButton}
-        onPress={() => navigation.navigate('Scan')}
+        onPress={() => navigation.replace('Scan')}
       >
         <Text style={styles.retryText}>
           Verificar otro código
@@ -182,27 +237,13 @@ export function ResultScreen() {
   );
 }
 
-/* ===========================
-   COMPONENTS
-=========================== */
+/* =========================== */
 
-function Centered({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <View style={styles.centered}>{children}</View>
-  );
+function Centered({ children }: { children: React.ReactNode }) {
+  return <View style={styles.centered}>{children}</View>;
 }
 
-function Field({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Field({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ marginBottom: spacing.md }}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -211,9 +252,7 @@ function Field({
   );
 }
 
-/* ===========================
-   UTILS
-=========================== */
+/* =========================== */
 
 function obfuscate(hash: string): string {
   if (hash.length <= 12) return hash;
@@ -232,9 +271,7 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-/* ===========================
-   STYLES
-=========================== */
+/* =========================== */
 
 const styles = StyleSheet.create({
   container: {
@@ -251,19 +288,19 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
 
-  title: {
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: spacing.sm,
+  headerBrand: {
+    color: colors.textMuted,
+    fontSize: 11,
+    letterSpacing: 2,
+    marginBottom: 6,
     textAlign: 'center',
   },
 
-  brand: {
-    color: colors.textMuted,
-    fontSize: 13,
-    letterSpacing: 0.8,
-    marginBottom: spacing.xl,
+  title: {
+    fontSize: 22,
+    fontWeight: '600',
     textAlign: 'center',
+    marginBottom: spacing.md,
   },
 
   success: {
@@ -278,6 +315,66 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: spacing.sm,
+  },
+
+  statusBox: {
+    borderRadius: 12,
+    padding: spacing.md,
+    backgroundColor: '#0f2a1f',
+    borderWidth: 1,
+    borderColor: '#1f5c45',
+    marginBottom: spacing.md,
+  },
+
+  statusTitle: {
+    color: colors.primary,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+
+  statusText: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
+
+  statusDegraded: {
+    backgroundColor: '#2a210c',
+    borderColor: '#8a6d1a',
+  },
+
+  integrityBox: {
+    borderRadius: 12,
+    padding: spacing.md,
+    borderWidth: 1,
+    marginBottom: spacing.lg,
+  },
+
+  valid: {
+    borderColor: '#1f5c45',
+    backgroundColor: '#0b1f18',
+  },
+
+  warning: {
+    borderColor: '#8a6d1a',
+    backgroundColor: '#2a210c',
+  },
+
+  integrityLabel: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginBottom: 4,
+  },
+
+  integrityValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: colors.textPrimary,
+  },
+
+  integrityText: {
+    fontSize: 12,
+    color: colors.textSecondary,
   },
 
   cardPrimary: {
@@ -301,7 +398,6 @@ const styles = StyleSheet.create({
   fieldLabel: {
     color: colors.textMuted,
     fontSize: 12,
-    marginBottom: 2,
   },
 
   fieldValue: {
@@ -312,7 +408,7 @@ const styles = StyleSheet.create({
 
   hashLabel: {
     color: colors.textMuted,
-    fontSize: 12,
+    fontSize: 11,
     marginBottom: 4,
   },
 
@@ -333,6 +429,33 @@ const styles = StyleSheet.create({
   retryText: {
     color: colors.primary,
     fontWeight: '600',
-    letterSpacing: 0.5,
+  },
+
+  historyBox: {
+    borderRadius: 14,
+    padding: spacing.md,
+    backgroundColor: '#0d0d0d',
+    borderWidth: 1,
+    borderColor: '#1c1c1c',
+    marginBottom: spacing.xl,
+  },
+
+  historyTitle: {
+    color: colors.textPrimary,
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+
+  historyText: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 18,
+  },
+
+  historySub: {
+    marginTop: 6,
+    color: colors.textMuted,
+    fontSize: 11,
   },
 });

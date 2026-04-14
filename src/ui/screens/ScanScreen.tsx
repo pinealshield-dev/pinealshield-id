@@ -1,6 +1,7 @@
 // src/ui/screens/ScanScreen.tsx
 
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -29,12 +30,21 @@ export function ScanScreen() {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
 
+  const [hasScanned, setHasScanned] = useState(false);
+
   useEffect(() => {
     if (!hasPermission) requestPermission();
   }, [hasPermission, requestPermission]);
 
   const onCodeScanned = (raw: string) => {
+    if (hasScanned) return; // 🔥 BLOQUEO CRÍTICO
+
+    setHasScanned(true);
+
     const identifier = parseIdentifier(raw);
+
+    console.log('[SCAN RAW]', raw);
+    console.log('[SCAN PARSED]', identifier);
 
     if (!identifier) {
       navigation.replace('Result', { status: 'invalid' });
@@ -79,9 +89,7 @@ export function ScanScreen() {
   if (!hasPermission) {
     return (
       <View style={styles.permissionContainer}>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor={colors.background}
+        <StatusBar barStyle="light-content" backgroundColor={colors.background}
         />
 
         <Image
@@ -127,7 +135,7 @@ export function ScanScreen() {
       <Camera
         style={{ flex: 1 }}
         device={device}
-        isActive={true}
+        isActive={!hasScanned}
         codeScanner={codeScanner}
       />
 

@@ -78,3 +78,4 @@ yarn-error.log
 android/app/*.keystore
 android/gradle.properties
 
+.expo/
