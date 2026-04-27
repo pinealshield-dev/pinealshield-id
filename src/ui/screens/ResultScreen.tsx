@@ -75,15 +75,20 @@ export function ResultScreen() {
   }, [status, raw]);
 
   if (status === 'invalid') {
-    return <StateScreen title="Código inválido" subtitle="El identificador no corresponde a un registro Pineal Shield." />;
+    return (
+      <StateScreen
+        title="Código inválido"
+        subtitle="El identificador no corresponde a un registro oficial de Pineal Shield."
+      />
+    );
   }
 
   if (loading) {
     return (
       <StateScreen
         loading
-        title="Verificando"
-        subtitle="Consultando infraestructura Pineal Shield..."
+        title="Validando autenticidad"
+        subtitle="Consultando infraestructura segura de Pineal Shield..."
       />
     );
   }
@@ -92,7 +97,7 @@ export function ResultScreen() {
     return (
       <StateScreen
         title="Registro no encontrado"
-        subtitle="No existe un registro verificable en este momento."
+        subtitle="No existe un registro verificable en este momento dentro de Pineal Shield."
         button="Intentar nuevamente"
         onPress={() => navigation.replace('Scan')}
       />
@@ -105,7 +110,6 @@ export function ResultScreen() {
     ? result.chain_valid ?? true
     : true;
 
-
   return (
     <ScrollView
       style={styles.container}
@@ -113,13 +117,17 @@ export function ResultScreen() {
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.eyebrow}>
-        PINEAL SHIELD REGISTRY
+        BY PINEAL SHIELD
       </Text>
 
       <Text style={styles.title}>
         {chainValid
-          ? 'Registro verificado'
+          ? 'Autenticidad verificada'
           : 'Registro detectado'}
+      </Text>
+
+      <Text style={styles.subtitleTop}>
+        Cliente móvil oficial PinealID
       </Text>
 
       <View
@@ -142,26 +150,13 @@ export function ResultScreen() {
 
         <Text style={styles.heroText}>
           {chainValid
-            ? 'El registro pertenece a una secuencia verificable dentro del sistema.'
+            ? 'El registro pertenece a una secuencia verificable dentro del ecosistema Pineal Shield.'
             : 'El registro existe, pero la continuidad técnica no pudo validarse completamente.'}
         </Text>
       </View>
 
       <Card>
-        <Field label="Tipo" value={cap(result.kind)} />
         <Field label="Nombre" value={result.nombre} />
-        <Field
-          label="Emitido"
-          value={date(result.issued_at)}
-        />
-        <Field
-          label="Firma"
-          value={result.signature ?? 'Pineal Shield Registry'}
-        />
-        <Field
-          label="Verificación"
-          value="Pineal Shield Registry"
-        />
 
         {result.brand_name ? (
           <Field
@@ -169,6 +164,26 @@ export function ResultScreen() {
             value={result.brand_name}
           />
         ) : null}
+
+        <Field label="Tipo" value={cap(result.kind)} />
+
+        <Field
+          label="Emitido"
+          value={date(result.issued_at)}
+        />
+
+        <Field
+          label="Firma"
+          value={
+            result.signature ??
+            'Verified by Pineal Shield'
+          }
+        />
+
+        <Field
+          label="Motor de verificación"
+          value="Pineal Shield Registry"
+        />
       </Card>
 
       <Card>
@@ -180,15 +195,15 @@ export function ResultScreen() {
 
       <Card>
         <Text style={styles.sectionTitle}>
-          Actividad de verificación
+          Actividad registrada
         </Text>
 
         <Text style={styles.sectionText}>
-          Este registro ha sido consultado dentro de la infraestructura Pineal Shield.
+          Este registro fue consultado mediante PinealID dentro de la infraestructura Pineal Shield.
         </Text>
 
         <Text style={styles.sectionMuted}>
-          El detalle visible puede limitarse por seguridad.
+          Algunos detalles pueden limitarse por seguridad y trazabilidad.
         </Text>
       </Card>
 
@@ -197,33 +212,59 @@ export function ResultScreen() {
         onPress={() => navigation.replace('Scan')}
       >
         <Text style={styles.buttonText}>
-          Verificar otro código
+          Nueva verificación
         </Text>
       </Pressable>
+
+      <Text style={styles.footerBrand}>
+        Verification Layer · 2026.02
+      </Text>
     </ScrollView>
   );
 }
 
+type StateScreenProps = {
+  title: string;
+  subtitle: string;
+  loading?: boolean;
+  button?: string;
+  onPress?: () => void;
+};
+
 function StateScreen({
   title,
   subtitle,
-  loading,
+  loading = false,
   button,
   onPress,
-}: any) {
+}: StateScreenProps) {
   return (
     <View style={styles.center}>
-      {loading && (
+      <Text style={styles.stateEyebrow}>
+        BY PINEAL SHIELD
+      </Text>
+
+      {loading ? (
         <ActivityIndicator
           size="large"
           color={colors.primary}
+          style={{ marginBottom: 18 }}
         />
+      ) : (
+        <View style={styles.stateBadge}>
+          <Text style={styles.stateBadgeText}>
+            PINEALID
+          </Text>
+        </View>
       )}
 
       <Text style={styles.stateTitle}>{title}</Text>
-      <Text style={styles.stateSub}>{subtitle}</Text>
 
-      {button && (
+      <Text style={styles.stateSub}>
+        {subtitle}
+      </Text>
+
+      {button && onPress ? (
         <Pressable
           style={styles.button}
           onPress={onPress}
@@ -232,7 +273,11 @@ function StateScreen({
             {button}
           </Text>
         </Pressable>
-      )}
+      ) : null}
+
+      <Text style={styles.stateFooter}>
+        Cliente móvil oficial · Pineal Shield
+      </Text>
     </View>
   );
 }
@@ -253,7 +298,7 @@ function Field({
   value: string;
 }) {
   return (
-    <View style={{ marginBottom: 14 }}>
+    <View style={styles.fieldWrap}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <Text style={styles.fieldValue}>{value}</Text>
     </View>
@@ -266,6 +311,7 @@ function mask(v: string) {
 }
 
 function cap(v: string) {
+  if (!v) return '';
   return v.charAt(0).toUpperCase() + v.slice(1);
 }
 
@@ -305,8 +351,16 @@ const styles = StyleSheet.create({
 
   title: {
     color: colors.textPrimary,
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '700',
+    letterSpacing: -0.3,
+    marginBottom: 12,
+  },
+
+  subtitleTop: {
+    color: colors.textMuted,
+    fontSize: 13,
+    marginTop: -4,
     marginBottom: 18,
   },
 
@@ -335,8 +389,9 @@ const styles = StyleSheet.create({
 
   heroValue: {
     color: colors.textPrimary,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
+    letterSpacing: 0.4,
     marginBottom: 8,
   },
 
@@ -352,6 +407,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.02)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.06)',
+    marginBottom: 14,
+  },
+
+  fieldWrap: {
     marginBottom: 14,
   },
 
@@ -386,12 +445,36 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 
+  stateEyebrow: {
+    color: colors.textMuted,
+    fontSize: 10,
+    letterSpacing: 2.2,
+    marginBottom: 14,
+  },
+
+  stateBadge: {
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,200,0.25)',
+    backgroundColor: 'rgba(0,255,200,0.06)',
+    borderRadius: 999,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+  },
+
+  stateBadgeText: {
+    color: colors.primary,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+
   stateTitle: {
     color: colors.textPrimary,
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '700',
-    marginTop: 14,
     textAlign: 'center',
+    marginTop: 4,
   },
 
   stateSub: {
@@ -399,12 +482,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 21,
-    marginTop: 8,
+    marginTop: 10,
     maxWidth: 320,
   },
 
   button: {
-    marginTop: 22,
+    marginTop: 24,
     alignSelf: 'center',
     borderWidth: 1,
     borderColor: colors.primary,
@@ -417,5 +500,21 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '700',
     fontSize: 15,
+  },
+
+  stateFooter: {
+    color: colors.textMuted,
+    fontSize: 11,
+    marginTop: 26,
+    opacity: 0.8,
+    textAlign: 'center',
+  },
+
+  footerBrand: {
+    color: colors.textMuted,
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: 10,
+    opacity: 0.8,
   },
 });
