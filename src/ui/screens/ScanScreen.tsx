@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   StatusBar,
+  //Vibration,
 } from 'react-native';
 
 import {
@@ -15,7 +16,7 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/RootNavigator';
@@ -27,19 +28,21 @@ type Nav = NativeStackNavigationProp<RootStackParamList, 'Scan'>;
 export function ScanScreen() {
   const navigation = useNavigation<Nav>();
   const device = useCameraDevice('back');
-  const { hasPermission, requestPermission } =
-    useCameraPermission();
+  const { hasPermission, requestPermission } = useCameraPermission();
 
   const [hasScanned, setHasScanned] = useState(false);
 
-  useEffect(() => {
-    if (!hasPermission) requestPermission();
-  }, [hasPermission, requestPermission]);
+  useFocusEffect(
+    useCallback(() => {
+      setHasScanned(false);
+    }, [])
+  );
 
   const onCodeScanned = (raw: string) => {
     if (hasScanned) return;
 
     setHasScanned(true);
+    //Vibration.vibrate(40);
 
     const identifier = parseIdentifier(raw);
 
@@ -56,7 +59,7 @@ export function ScanScreen() {
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
-    onCodeScanned: (codes) => {
+    onCodeScanned: codes => {
       const value = codes?.[0]?.value;
       if (value) onCodeScanned(value);
     },
@@ -66,7 +69,7 @@ export function ScanScreen() {
     return (
       <CenteredBlock
         title="Cámara no disponible"
-        subtitle="No fue posible acceder al módulo de cámara."
+        subtitle="No fue posible inicializar el módulo de cámara."
       />
     );
   }
@@ -75,7 +78,7 @@ export function ScanScreen() {
     return (
       <CenteredBlock
         title="Acceso requerido"
-        subtitle="PinealID necesita acceso a cámara para leer certificaciones oficiales."
+        subtitle="PinealID utiliza la cámara únicamente para leer códigos oficiales."
         buttonText="Conceder acceso"
         onPress={requestPermission}
       />
@@ -91,20 +94,17 @@ export function ScanScreen() {
         device={device}
         isActive={!hasScanned}
         codeScanner={codeScanner}
+        //photo={false}
+        //video={false}
+        //audio={false}
       />
 
       <View style={styles.dimTop} />
       <View style={styles.dimBottom} />
 
       <View style={styles.header}>
-        <Text style={styles.eyebrow}>
-          PINEAL SHIELD REGISTRY
-        </Text>
-
-        <Text style={styles.title}>
-          Escanear certificación
-        </Text>
-
+        <Text style={styles.eyebrow}>PINEAL SHIELD REGISTRY</Text>
+        <Text style={styles.title}>Verificar autenticidad</Text>
         <Text style={styles.subtitle}>
           Alinea el código dentro del marco
         </Text>
