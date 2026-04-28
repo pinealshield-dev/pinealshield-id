@@ -81,7 +81,7 @@ export function HistoryScreen() {
         </Text>
 
         <Text style={styles.meta}>
-          Storage · Local Device
+          Almacenamiento · Local
         </Text>
 
         <Text style={styles.meta}>
