@@ -18,7 +18,10 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '@/navigation/RootNavigator';
-import { verifyByHashPublic } from '@/services/verifyClient';
+import {
+  verifyByHashPublic,
+  VerifyOfflineError,
+} from '@/services/verifyClient';
 import type { VerifyPublicResult } from '@/domain/verification';
 import { colors, spacing } from '@/theme';
 
@@ -38,13 +41,14 @@ export function ResultScreen() {
   const [result, setResult] =
     useState<VerifyPublicResult | null>(null);
 
-  useEffect(() => {
+    useEffect(() => {
     if (status !== 'scanned' || !raw) return;
 
     let mounted = true;
     const controller = new AbortController();
 
     setLoading(true);
+    setResult(null);
 
     verifyByHashPublic(raw, controller.signal)
       .then((res) => {
@@ -61,18 +65,27 @@ export function ResultScreen() {
           });
         }
       })
-      .catch(() => {
-        if (mounted) setResult({ status: 'unverified' });
+      .catch((err) => {
+        if (!mounted) return;
+
+        if (err instanceof VerifyOfflineError) {
+          navigation.replace('Offline');
+          return;
+        }
+
+        setResult({ status: 'unverified' });
       })
       .finally(() => {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       });
 
     return () => {
       mounted = false;
       controller.abort();
     };
-  }, [status, raw]);
+  }, [status, raw, navigation]);
 
   if (status === 'invalid') {
     return (

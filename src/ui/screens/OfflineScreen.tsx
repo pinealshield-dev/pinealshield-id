@@ -12,9 +12,13 @@ import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../../navigation/RootNavigator'
 
-import { colors, spacing, typography } from '@/theme'
+import { colors, spacing } from '@/theme'
 
-type Nav = NativeStackNavigationProp<RootStackParamList, 'Offline'>
+type Nav =
+  NativeStackNavigationProp<
+    RootStackParamList,
+    'Offline'
+  >
 
 export function OfflineScreen() {
   const navigation = useNavigation<Nav>()
@@ -32,18 +36,33 @@ export function OfflineScreen() {
         resizeMode="contain"
       />
 
-      <Text style={[styles.title, typography.title]}>
+      <Text style={styles.eyebrow}>
+        BY PINEAL SHIELD
+      </Text>
+
+      <Text style={styles.title}>
         Sin conexión segura
       </Text>
 
-      <Text style={[styles.subtitle, typography.body]}>
-        La verificación criptográfica requiere acceso a red.
+      <Text style={styles.subtitle}>
+        La validación institucional requiere acceso a red.
       </Text>
 
-      <Text style={styles.description}>
-        PinealID necesita conectividad para validar el registro
-        contra la infraestructura privada de Pineal Shield.
-      </Text>
+      <View style={styles.card}>
+        <Text style={styles.cardLabel}>
+          Estado
+        </Text>
+
+        <Text style={styles.cardTitle}>
+          MODO OFFLINE
+        </Text>
+
+        <Text style={styles.cardBody}>
+          PinealID necesita conectividad para consultar
+          la infraestructura oficial y verificar el
+          estado actual del registro solicitado.
+        </Text>
+      </View>
 
       <Pressable
         style={({ pressed }) => [
@@ -57,8 +76,8 @@ export function OfflineScreen() {
         </Text>
       </Pressable>
 
-      <Text style={styles.version}>
-        PinealID · 2026.02
+      <Text style={styles.footer}>
+        Verification Layer · 2026.02
       </Text>
     </View>
   )
@@ -74,52 +93,83 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 72,
-    height: 72,
-    marginBottom: spacing.lg,
-    opacity: 0.9,
+    width: 82,
+    height: 82,
+    marginBottom: 18,
+    opacity: 0.95,
+  },
+
+  eyebrow: {
+    color: colors.textMuted,
+    fontSize: 10,
+    letterSpacing: 2.6,
+    marginBottom: 14,
   },
 
   title: {
     color: colors.textPrimary,
-    marginBottom: spacing.sm,
+    fontSize: 34,
+    fontWeight: '700',
     textAlign: 'center',
+    marginBottom: 10,
   },
 
   subtitle: {
     color: colors.textSecondary,
-    opacity: 0.8,
-    marginBottom: spacing.sm,
+    fontSize: 14,
     textAlign: 'center',
+    marginBottom: 22,
   },
 
-  description: {
+  card: {
+    width: '100%',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#1a2230',
+    backgroundColor: '#0b1018',
+    padding: 22,
+    marginBottom: 24,
+  },
+
+  cardLabel: {
     color: colors.textMuted,
-    fontSize: 13,
-    textAlign: 'center',
-    marginBottom: spacing.xl,
-    lineHeight: 18,
+    fontSize: 12,
+    marginBottom: 8,
+  },
+
+  cardTitle: {
+    color: colors.primary,
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+
+  cardBody: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
   },
 
   button: {
     borderWidth: 1,
     borderColor: colors.primary,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: 16,
+    paddingVertical: 15,
+    paddingHorizontal: 28,
+    borderRadius: 18,
   },
 
   buttonPressed: {
-    opacity: 0.85,
+    opacity: 0.88,
   },
 
   buttonText: {
     color: colors.primary,
-    fontWeight: '600',
-    letterSpacing: 0.4,
+    fontWeight: '700',
+    fontSize: 15,
   },
 
-  version: {
+  footer: {
     position: 'absolute',
     bottom: 24,
     color: colors.textMuted,
