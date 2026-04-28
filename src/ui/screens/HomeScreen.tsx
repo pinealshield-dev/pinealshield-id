@@ -8,13 +8,17 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { colors, spacing } from '@/theme';
 
-type Nav = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type Nav = NativeStackNavigationProp<
+  RootStackParamList,
+  'Home'
+>;
 
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
@@ -34,7 +38,7 @@ export function HomeScreen() {
         />
 
         <Text style={styles.eyebrow}>
-          PINEAL SHIELD REGISTRY
+          BY PINEAL SHIELD
         </Text>
 
         <Text style={styles.title}>
@@ -42,7 +46,10 @@ export function HomeScreen() {
         </Text>
 
         <Text style={styles.subtitle}>
-          Official verification client for Pineal Shield records.
+          Cliente móvil oficial para verificar
+          autenticidad, estado e integridad de
+          registros dentro del ecosistema
+          Pineal Shield.
         </Text>
       </View>
 
@@ -59,16 +66,23 @@ export function HomeScreen() {
       </Pressable>
 
       <Text style={styles.helperText}>
-        Escanea un código oficial para validar existencia, estado e integridad del registro.
+        Escanea códigos compatibles para validar
+        registros emitidos por Pineal Shield Registry.
       </Text>
 
       <View style={styles.trustCard}>
+        <Text style={styles.cardLabel}>
+          Trust Layer
+        </Text>
+
         <Text style={styles.trustTitle}>
           Verificación institucional
         </Text>
 
         <Text style={styles.trustBody}>
-          PinealID consulta directamente la infraestructura de Pineal Shield y muestra el estado actual del registro verificado.
+          PinealID consulta la infraestructura oficial
+          de Pineal Shield y devuelve el estado actual
+          del registro verificado en tiempo real.
         </Text>
       </View>
 
@@ -96,52 +110,53 @@ const styles = StyleSheet.create({
 
   hero: {
     alignItems: 'center',
-    marginBottom: 36,
-    marginTop: 12,
+    marginBottom: 34,
+    marginTop: 10,
   },
 
   logo: {
-    width: 92,
-    height: 92,
+    width: 96,
+    height: 96,
     marginBottom: 20,
+    opacity: 0.96,
   },
 
   eyebrow: {
     color: colors.textMuted,
     fontSize: 10,
-    letterSpacing: 2.6,
+    letterSpacing: 2.8,
     marginBottom: 10,
   },
 
   title: {
     color: colors.textPrimary,
-    fontSize: 34,
+    fontSize: 38,
     fontWeight: '700',
-    letterSpacing: 0.2,
-    marginBottom: 10,
+    marginBottom: 12,
+    letterSpacing: 0.3,
   },
 
   subtitle: {
     color: colors.textSecondary,
     textAlign: 'center',
     fontSize: 15,
-    lineHeight: 22,
-    maxWidth: 310,
+    lineHeight: 24,
+    maxWidth: 320,
   },
 
   primaryButton: {
-    minWidth: 250,
+    minWidth: 270,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.primary,
-    paddingVertical: 16,
+    paddingVertical: 17,
     paddingHorizontal: 28,
-    borderRadius: 18,
+    borderRadius: 20,
     shadowColor: colors.primary,
-    shadowOpacity: 0.2,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 6,
+    shadowOpacity: 0.22,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 7,
   },
 
   primaryButtonPressed: {
@@ -168,24 +183,31 @@ const styles = StyleSheet.create({
   trustCard: {
     width: '100%',
     marginTop: 28,
-    borderRadius: 18,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    backgroundColor: 'rgba(255,255,255,0.02)',
-    padding: 18,
+    borderColor: '#1a2230',
+    backgroundColor: '#0b1018',
+    padding: 22,
+  },
+
+  cardLabel: {
+    color: colors.textMuted,
+    fontSize: 11,
+    marginBottom: 8,
+    letterSpacing: 1,
   },
 
   trustTitle: {
     color: colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 10,
   },
 
   trustBody: {
     color: colors.textSecondary,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 22,
   },
 
   footer: {
