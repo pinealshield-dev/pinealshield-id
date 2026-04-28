@@ -7,6 +7,7 @@ export const ENV = {
 
   // RPC pública de verificación
   RPC_VERIFY_PATH: '/rest/v1/rpc/verify_identifier_public',
+  RPC_HISTORY_PATH: '/rest/v1/rpc/get_device_history_public',
 
   // Network
   HTTP_TIMEOUT_MS: 8000,
