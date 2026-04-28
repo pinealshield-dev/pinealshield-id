@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -8,11 +8,14 @@ import {
   StatusBar,
 } from 'react-native'
 
+import NetInfo from '@react-native-community/netinfo'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import type { AccountStackParamList } from '@/navigation/AccountStack'
 import { colors, spacing } from '@/theme'
+import { ENV } from '@/config/env'
+import { getDeviceId } from '@/security/deviceIdentity'
 
 type Nav =
   NativeStackNavigationProp<
@@ -22,6 +25,47 @@ type Nav =
 
 export function AccountScreen() {
   const navigation = useNavigation<Nav>()
+
+  const [deviceId, setDeviceId] = useState('...')
+  const [isOnline, setIsOnline] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    loadIdentity()
+
+    const unsubscribe = NetInfo.addEventListener(state => {
+      const connected =
+        Boolean(state.isConnected) &&
+        Boolean(state.isInternetReachable ?? true)
+
+      setIsOnline(connected)
+    })
+
+    return unsubscribe
+  }, [])
+
+  async function loadIdentity() {
+    const id = await getDeviceId()
+    setDeviceId(id)
+  }
+
+  const shortId =
+    deviceId.length > 18
+      ? `${deviceId.slice(0, 8)}...${deviceId.slice(-6)}`
+      : deviceId
+
+  const networkLabel =
+    isOnline === null
+      ? 'VERIFICANDO'
+      : isOnline
+      ? 'CONECTADO'
+      : 'OFFLINE'
+
+  const networkColor =
+    isOnline === null
+      ? colors.textMuted
+      : isOnline
+      ? colors.primary
+      : '#ff8a65'
 
   return (
     <ScrollView
@@ -38,12 +82,16 @@ export function AccountScreen() {
         BY PINEAL SHIELD
       </Text>
 
-      <Text style={styles.title}>Cuenta</Text>
-
-      <Text style={styles.subtitle}>
-        Cliente móvil oficial para verificar y gestionar activos autenticados.
+      <Text style={styles.title}>
+        Cuenta
       </Text>
 
+      <Text style={styles.subtitle}>
+        Identidad local, estado del cliente y base
+        preparada para futuras capas seguras.
+      </Text>
+
+      {/* IDENTIDAD */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>
           Identidad
@@ -54,29 +102,55 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.descSmall}>
-          Superficie móvil para verificar, consultar
-          y administrar activos autenticados.
+          Cliente móvil institucional para
+          verificación y futura gestión de activos
+          autenticados.
         </Text>
       </View>
 
+      {/* RED */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>
           Estado del ecosistema
         </Text>
 
-        <Text style={styles.statusOk}>
-          CONECTADO
+        <Text
+          style={[
+            styles.status,
+            { color: networkColor },
+          ]}
+        >
+          {networkLabel}
         </Text>
 
         <Text style={styles.desc}>
-          Cliente enlazado con la infraestructura
-          de verificación Pineal Shield Registry.
+          {isOnline
+            ? 'Conectividad disponible con servicios de verificación Pineal Shield.'
+            : 'Sin acceso a red. Las verificaciones remotas requieren conexión.'}
         </Text>
       </View>
 
+      {/* DEVICE */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>
-          Mis activos
+          Dispositivo
+        </Text>
+
+        <Text style={styles.value}>
+          {shortId}
+        </Text>
+
+        <Text style={styles.desc}>
+          Identificador local persistente utilizado
+          para trazabilidad técnica y futuras capas
+          de seguridad.
+        </Text>
+      </View>
+
+      {/* FUTURO PERFIL */}
+      <View style={styles.card}>
+        <Text style={styles.sectionLabel}>
+          Perfil
         </Text>
 
         <Text style={styles.value}>
@@ -84,12 +158,12 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.desc}>
-          Aquí podrás visualizar productos,
-          certificados y activos verificados
-          asociados a tu cuenta.
+          Aquí vivirán acceso seguro, activos,
+          preferencias, sincronización y sesiones.
         </Text>
       </View>
 
+      {/* LEGAL */}
       <Pressable
         style={({ pressed }) => [
           styles.button,
@@ -102,17 +176,22 @@ export function AccountScreen() {
         </Text>
       </Pressable>
 
+      {/* METADATA */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>
           Metadata técnica
         </Text>
 
         <Text style={styles.meta}>
-          App · PinealID 1.0.4
+          App · PinealID {ENV.APP_VERSION}
         </Text>
 
         <Text style={styles.meta}>
-          Verification Layer · 2026.02
+          Verification Layer · {ENV.BUILD_VERSION}
+        </Text>
+
+        <Text style={styles.meta}>
+          Host · verify.pinealshield.com
         </Text>
       </View>
     </ScrollView>
@@ -127,13 +206,13 @@ const styles = StyleSheet.create({
 
   content: {
     padding: spacing.lg,
-    paddingBottom: 80,
+    paddingBottom: 90,
   },
 
   eyebrow: {
     color: colors.textMuted,
     fontSize: 10,
-    letterSpacing: 2.5,
+    letterSpacing: 2.4,
     marginTop: 10,
     marginBottom: 14,
   },
@@ -148,6 +227,7 @@ const styles = StyleSheet.create({
   subtitle: {
     color: colors.textMuted,
     fontSize: 14,
+    lineHeight: 22,
     marginBottom: 24,
   },
 
@@ -180,8 +260,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  statusOk: {
-    color: colors.primary,
+  status: {
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 8,

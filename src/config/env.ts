@@ -15,7 +15,7 @@ export const ENV = {
   ALLOWED_HOSTS: ['verify.pinealshield.com'],
 
    // 🆕 versión de la app (CRÍTICO para trazabilidad)
-  APP_VERSION: '1.0.3',
+  APP_VERSION: '1.0.4',
   BUILD_VERSION: '2026.02',
   
 };
