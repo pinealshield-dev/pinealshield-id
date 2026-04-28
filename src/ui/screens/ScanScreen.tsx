@@ -6,7 +6,6 @@ import {
   Pressable,
   StyleSheet,
   StatusBar,
-  //Vibration,
 } from 'react-native';
 
 import {
@@ -16,55 +15,99 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {
+  useNavigation,
+  useFocusEffect,
+} from '@react-navigation/native';
 
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/RootNavigator';
+
 import { parseIdentifier } from '@/utils/parseIdentifier';
 import { colors, spacing } from '@/theme';
 
-type Nav = NativeStackNavigationProp<RootStackParamList, 'Scan'>;
+type Nav =
+  NativeStackNavigationProp<
+    RootStackParamList,
+    'Scan'
+  >;
 
 export function ScanScreen() {
   const navigation = useNavigation<Nav>();
+
   const device = useCameraDevice('back');
-  const { hasPermission, requestPermission } = useCameraPermission();
 
-  const [hasScanned, setHasScanned] = useState(false);
+  const {
+    hasPermission,
+    requestPermission,
+  } = useCameraPermission();
 
+  // evita múltiples lecturas seguidas
+  const [hasScanned, setHasScanned] =
+    useState(false);
+
+  // cada vez que entras a la pantalla, rearmamos scanner
   useFocusEffect(
     useCallback(() => {
       setHasScanned(false);
     }, [])
   );
 
+  /**
+   * Callback seguro:
+   * - evita doble scan
+   * - protege parseIdentifier
+   * - nunca rompe navegación
+   */
   const onCodeScanned = (raw: string) => {
     if (hasScanned) return;
 
     setHasScanned(true);
-    //Vibration.vibrate(40);
 
-    const identifier = parseIdentifier(raw);
+    try {
+      const identifier =
+        parseIdentifier(raw);
 
-    if (!identifier) {
-      navigation.replace('Result', { status: 'invalid' });
-      return;
+      // QR externo / no Pineal Shield
+      if (!identifier) {
+        navigation.replace(
+          'Result',
+          { status: 'invalid' }
+        );
+        return;
+      }
+
+      // QR válido
+      navigation.replace(
+        'Result',
+        {
+          status: 'scanned',
+          raw: identifier,
+        }
+      );
+    } catch (error) {
+      // fallback seguro
+      navigation.replace(
+        'Result',
+        { status: 'invalid' }
+      );
     }
-
-    navigation.replace('Result', {
-      status: 'scanned',
-      raw: identifier,
-    });
   };
 
-  const codeScanner = useCodeScanner({
-    codeTypes: ['qr'],
-    onCodeScanned: codes => {
-      const value = codes?.[0]?.value;
-      if (value) onCodeScanned(value);
-    },
-  });
+  const codeScanner =
+    useCodeScanner({
+      codeTypes: ['qr'],
+      onCodeScanned: codes => {
+        const value =
+          codes?.[0]?.value;
 
+        if (value) {
+          onCodeScanned(value);
+        }
+      },
+    });
+
+  // Cámara no encontrada
   if (!device) {
     return (
       <CenteredBlock
@@ -74,6 +117,7 @@ export function ScanScreen() {
     );
   }
 
+  // Sin permiso aún
   if (!hasPermission) {
     return (
       <CenteredBlock
@@ -87,30 +131,44 @@ export function ScanScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar
+        barStyle="light-content"
+      />
 
       <Camera
-        style={StyleSheet.absoluteFill}
+        style={
+          StyleSheet.absoluteFill
+        }
         device={device}
         isActive={!hasScanned}
         codeScanner={codeScanner}
-        //photo={false}
-        //video={false}
-        //audio={false}
       />
 
       <View style={styles.dimTop} />
-      <View style={styles.dimBottom} />
+      <View
+        style={styles.dimBottom}
+      />
 
       <View style={styles.header}>
-        <Text style={styles.eyebrow}>PINEAL SHIELD REGISTRY</Text>
-        <Text style={styles.title}>Verificar autenticidad</Text>
-        <Text style={styles.subtitle}>
-          Alinea el código dentro del marco
+        <Text style={styles.eyebrow}>
+          BY PINEAL SHIELD
+        </Text>
+
+        <Text style={styles.title}>
+          Verificar autenticidad
+        </Text>
+
+        <Text
+          style={styles.subtitle}
+        >
+          Alinea el código dentro
+          del marco seguro
         </Text>
       </View>
 
-      <View style={styles.centerArea}>
+      <View
+        style={styles.centerArea}
+      >
         <View style={styles.frame}>
           <Corner pos="tl" />
           <Corner pos="tr" />
@@ -120,8 +178,11 @@ export function ScanScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          Verificación directa contra Pineal Shield
+        <Text
+          style={styles.footerText}
+        >
+          Verificación directa
+          contra Pineal Shield
         </Text>
       </View>
     </View>
@@ -140,28 +201,50 @@ function CenteredBlock({
   onPress?: () => void;
 }) {
   return (
-    <View style={styles.blockContainer}>
+    <View
+      style={
+        styles.blockContainer
+      }
+    >
       <Image
         source={require('@/assets/images/pinealid-logo.png')}
         style={styles.logo}
       />
 
-      <Text style={styles.blockTitle}>{title}</Text>
-      <Text style={styles.blockText}>{subtitle}</Text>
+      <Text
+        style={styles.blockTitle}
+      >
+        {title}
+      </Text>
 
-      {buttonText && onPress && (
+      <Text
+        style={styles.blockText}
+      >
+        {subtitle}
+      </Text>
+
+      {buttonText &&
+      onPress ? (
         <Pressable
           onPress={onPress}
-          style={({ pressed }) => [
+          style={({
+            pressed,
+          }) => [
             styles.button,
-            pressed && { opacity: 0.9 },
+            pressed && {
+              opacity: 0.9,
+            },
           ]}
         >
-          <Text style={styles.buttonText}>
+          <Text
+            style={
+              styles.buttonText
+            }
+          >
             {buttonText}
           </Text>
         </Pressable>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -169,7 +252,11 @@ function CenteredBlock({
 function Corner({
   pos,
 }: {
-  pos: 'tl' | 'tr' | 'bl' | 'br';
+  pos:
+    | 'tl'
+    | 'tr'
+    | 'bl'
+    | 'br';
 }) {
   const styleMap = {
     tl: styles.tl,
@@ -178,13 +265,21 @@ function Corner({
     br: styles.br,
   };
 
-  return <View style={[styles.corner, styleMap[pos]]} />;
+  return (
+    <View
+      style={[
+        styles.corner,
+        styleMap[pos],
+      ]}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor:
+      '#000',
   },
 
   dimTop: {
@@ -193,7 +288,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '22%',
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor:
+      'rgba(0,0,0,0.55)',
   },
 
   dimBottom: {
@@ -202,7 +298,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '28%',
-    backgroundColor: 'rgba(0,0,0,0.58)',
+    backgroundColor:
+      'rgba(0,0,0,0.58)',
   },
 
   header: {
@@ -210,7 +307,8 @@ const styles = StyleSheet.create({
     top: 58,
     left: 24,
     right: 24,
-    alignItems: 'center',
+    alignItems:
+      'center',
   },
 
   eyebrow: {
@@ -230,28 +328,34 @@ const styles = StyleSheet.create({
     color: '#d1d5db',
     fontSize: 13,
     marginTop: 8,
+    textAlign: 'center',
   },
 
   centerArea: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent:
+      'center',
+    alignItems:
+      'center',
   },
 
   frame: {
     width: 270,
     height: 270,
     borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.15)',
+    backgroundColor:
+      'rgba(0,0,0,0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor:
+      'rgba(255,255,255,0.08)',
   },
 
   corner: {
     position: 'absolute',
     width: 34,
     height: 34,
-    borderColor: colors.primary,
+    borderColor:
+      colors.primary,
   },
 
   tl: {
@@ -291,7 +395,8 @@ const styles = StyleSheet.create({
     bottom: 34,
     left: 20,
     right: 20,
-    alignItems: 'center',
+    alignItems:
+      'center',
   },
 
   footerText: {
@@ -301,10 +406,14 @@ const styles = StyleSheet.create({
 
   blockContainer: {
     flex: 1,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
+    backgroundColor:
+      colors.background,
+    justifyContent:
+      'center',
+    alignItems:
+      'center',
+    paddingHorizontal:
+      spacing.lg,
   },
 
   logo: {
@@ -314,7 +423,8 @@ const styles = StyleSheet.create({
   },
 
   blockTitle: {
-    color: colors.textPrimary,
+    color:
+      colors.textPrimary,
     fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
@@ -322,7 +432,8 @@ const styles = StyleSheet.create({
   },
 
   blockText: {
-    color: colors.textSecondary,
+    color:
+      colors.textSecondary,
     textAlign: 'center',
     fontSize: 14,
     lineHeight: 21,
@@ -330,7 +441,8 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: colors.primary,
+    backgroundColor:
+      colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 16,
