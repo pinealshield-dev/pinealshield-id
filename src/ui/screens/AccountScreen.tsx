@@ -34,18 +34,59 @@ export function AccountScreen() {
         backgroundColor={colors.background}
       />
 
-      <Text style={styles.eyebrow}>PINEALID</Text>
+      <Text style={styles.eyebrow}>
+        BY PINEAL SHIELD
+      </Text>
+
       <Text style={styles.title}>Cuenta</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Aplicación</Text>
-        <Text style={styles.value}>PinealID 1.0.3</Text>
+      <Text style={styles.subtitle}>
+        Cliente móvil oficial para verificar y gestionar activos autenticados.
+      </Text>
 
-        <Text style={[styles.label, styles.mt]}>
-          Capa institucional
+      <View style={styles.card}>
+        <Text style={styles.sectionLabel}>
+          Identidad
         </Text>
+
+        <Text style={styles.valueBig}>
+          PinealID
+        </Text>
+
+        <Text style={styles.descSmall}>
+          Superficie móvil para verificar, consultar
+          y administrar activos autenticados.
+        </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.sectionLabel}>
+          Estado del ecosistema
+        </Text>
+
+        <Text style={styles.statusOk}>
+          CONECTADO
+        </Text>
+
+        <Text style={styles.desc}>
+          Cliente enlazado con la infraestructura
+          de verificación Pineal Shield Registry.
+        </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.sectionLabel}>
+          Mis activos
+        </Text>
+
         <Text style={styles.value}>
-          Verification Layer · 2026.02
+          Próxima capa disponible
+        </Text>
+
+        <Text style={styles.desc}>
+          Aquí podrás visualizar productos,
+          certificados y activos verificados
+          asociados a tu cuenta.
         </Text>
       </View>
 
@@ -62,14 +103,16 @@ export function AccountScreen() {
       </Pressable>
 
       <View style={styles.card}>
-        <Text style={styles.valueTitle}>
-          Estado del cliente
+        <Text style={styles.sectionLabel}>
+          Metadata técnica
         </Text>
 
-        <Text style={styles.desc}>
-          Cliente móvil conectado a la
-          infraestructura de verificación
-          Pineal Shield.
+        <Text style={styles.meta}>
+          App · PinealID 1.0.4
+        </Text>
+
+        <Text style={styles.meta}>
+          Verification Layer · 2026.02
         </Text>
       </View>
     </ScrollView>
@@ -89,17 +132,23 @@ const styles = StyleSheet.create({
 
   eyebrow: {
     color: colors.textMuted,
-    fontSize: 11,
-    letterSpacing: 3,
+    fontSize: 10,
+    letterSpacing: 2.5,
     marginTop: 10,
-    marginBottom: 16,
+    marginBottom: 14,
   },
 
   title: {
     color: colors.textPrimary,
-    fontSize: 42,
-    fontWeight: '600',
-    marginBottom: 28,
+    fontSize: 40,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+
+  subtitle: {
+    color: colors.textMuted,
+    fontSize: 14,
+    marginBottom: 24,
   },
 
   card: {
@@ -108,23 +157,47 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#1a2230',
     padding: 22,
-    marginBottom: 20,
+    marginBottom: 18,
   },
 
-  label: {
+  sectionLabel: {
     color: colors.textMuted,
-    fontSize: 14,
-    marginBottom: 6,
+    fontSize: 12,
+    marginBottom: 10,
+  },
+
+  valueBig: {
+    color: colors.textPrimary,
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 8,
   },
 
   value: {
     color: colors.textPrimary,
     fontSize: 18,
     fontWeight: '600',
+    marginBottom: 8,
   },
 
-  mt: {
-    marginTop: 18,
+  statusOk: {
+    color: colors.primary,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+
+  desc: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    lineHeight: 24,
+  },
+
+  descSmall: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
   },
 
   button: {
@@ -132,9 +205,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#1a2230',
-    paddingVertical: 20,
+    paddingVertical: 18,
     paddingHorizontal: 22,
-    marginBottom: 20,
+    marginBottom: 18,
   },
 
   pressed: {
@@ -143,20 +216,13 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: colors.primary,
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
   },
 
-  valueTitle: {
-    color: colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-
-  desc: {
+  meta: {
     color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 28,
+    fontSize: 14,
+    marginBottom: 8,
   },
 })
