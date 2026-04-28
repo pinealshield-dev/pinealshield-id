@@ -97,8 +97,8 @@ export function AccountScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        Identidad local, estado del cliente y
-        preparación para futuras capas seguras.
+        Identidad local, dispositivo confiable y acceso
+        progresivo al ecosistema Pineal Shield.
       </Text>
 
       {/* IDENTIDAD */}
@@ -177,7 +177,7 @@ export function AccountScreen() {
         </View>
       </View>
 
-      {/* CUENTA FUTURA */}
+      {/* CUENTA */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>
           Cuenta PinealID
@@ -188,14 +188,37 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.desc}>
-          Actualmente operas en modo local seguro.
-          Próximamente podrás sincronizar actividad,
-          dispositivos y sesiones protegidas.
+          Operas en modo local seguro. La siguiente fase
+          habilitará acceso autenticado, sincronización
+          de dispositivos y sesiones confiables.
         </Text>
 
         <Pressable style={styles.buttonDisabled}>
           <Text style={styles.buttonDisabledText}>
-            Próximamente: Acceso Seguro
+            Próximamente · Acceso Seguro
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* ACTIVOS */}
+      <View style={styles.card}>
+        <Text style={styles.sectionLabel}>
+          Mis activos
+        </Text>
+
+        <Text style={styles.value}>
+          CAPA PREPARADA
+        </Text>
+
+        <Text style={styles.desc}>
+          Aquí vivirán productos vinculados, garantías,
+          certificados, propiedad digital y futuras
+          transferencias verificables.
+        </Text>
+
+        <Pressable style={styles.buttonDisabled}>
+          <Text style={styles.buttonDisabledText}>
+            Próximamente · Ecosistema Personal
           </Text>
         </Pressable>
       </View>
@@ -232,7 +255,7 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.meta}>
-          Mode · Local Secure Runtime
+          Mode · Identity Edge Client
         </Text>
       </View>
     </ScrollView>
