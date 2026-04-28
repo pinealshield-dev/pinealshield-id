@@ -6,7 +6,9 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
+  Alert,
 } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 
 import NetInfo from '@react-native-community/netinfo'
 import { useNavigation } from '@react-navigation/native'
@@ -30,7 +32,7 @@ export function AccountScreen() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null)
 
   useEffect(() => {
-    loadIdentity()
+    refreshDiagnostics()
 
     const unsubscribe = NetInfo.addEventListener(state => {
       const connected =
@@ -43,9 +45,17 @@ export function AccountScreen() {
     return unsubscribe
   }, [])
 
-  async function loadIdentity() {
+  async function refreshDiagnostics() {
     const id = await getDeviceId()
     setDeviceId(id)
+  }
+
+  function copyDeviceId() {
+    Clipboard.setString(deviceId)
+    Alert.alert(
+      'Copiado',
+      'Identificador de dispositivo copiado.'
+    )
   }
 
   const shortId =
@@ -87,8 +97,8 @@ export function AccountScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        Identidad local, estado del cliente y base
-        preparada para futuras capas seguras.
+        Identidad local, estado del cliente y
+        preparación para futuras capas seguras.
       </Text>
 
       {/* IDENTIDAD */}
@@ -133,7 +143,7 @@ export function AccountScreen() {
       {/* DEVICE */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>
-          Dispositivo
+          Dispositivo confiable
         </Text>
 
         <Text style={styles.value}>
@@ -141,26 +151,53 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.desc}>
-          Identificador local persistente utilizado
-          para trazabilidad técnica y futuras capas
+          Identificador persistente usado para
+          trazabilidad técnica y futuras capas
           de seguridad.
         </Text>
+
+        <View style={styles.row}>
+          <Pressable
+            style={styles.secondaryButton}
+            onPress={copyDeviceId}
+          >
+            <Text style={styles.secondaryText}>
+              Copiar ID
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.secondaryButton}
+            onPress={refreshDiagnostics}
+          >
+            <Text style={styles.secondaryText}>
+              Refresh
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
-      {/* FUTURO PERFIL */}
+      {/* CUENTA FUTURA */}
       <View style={styles.card}>
         <Text style={styles.sectionLabel}>
-          Perfil
+          Cuenta PinealID
         </Text>
 
         <Text style={styles.value}>
-          Próxima capa disponible
+          NO VINCULADA
         </Text>
 
         <Text style={styles.desc}>
-          Aquí vivirán acceso seguro, activos,
-          preferencias, sincronización y sesiones.
+          Actualmente operas en modo local seguro.
+          Próximamente podrás sincronizar actividad,
+          dispositivos y sesiones protegidas.
         </Text>
+
+        <Pressable style={styles.buttonDisabled}>
+          <Text style={styles.buttonDisabledText}>
+            Próximamente: Acceso Seguro
+          </Text>
+        </Pressable>
       </View>
 
       {/* LEGAL */}
@@ -192,6 +229,10 @@ export function AccountScreen() {
 
         <Text style={styles.meta}>
           Host · verify.pinealshield.com
+        </Text>
+
+        <Text style={styles.meta}>
+          Mode · Local Secure Runtime
         </Text>
       </View>
     </ScrollView>
@@ -271,12 +312,19 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 15,
     lineHeight: 24,
+    marginBottom: 14,
   },
 
   descSmall: {
     color: colors.textSecondary,
     fontSize: 14,
     lineHeight: 22,
+  },
+
+  row: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 6,
   },
 
   button: {
@@ -296,6 +344,38 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.primary,
     fontSize: 17,
+    fontWeight: '700',
+  },
+
+  secondaryButton: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#1a2230',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: '#070b12',
+  },
+
+  secondaryText: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+
+  buttonDisabled: {
+    marginTop: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1a2230',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    backgroundColor: '#070707',
+    opacity: 0.7,
+  },
+
+  buttonDisabledText: {
+    color: colors.textMuted,
+    fontSize: 15,
     fontWeight: '700',
   },
 
