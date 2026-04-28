@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react'
+import { registerSecurityEvent } from '@/services/securityEventsClient'
 import { ENV } from '@/config/env';
 import {
   View,
@@ -22,6 +23,10 @@ type Nav = NativeStackNavigationProp<
 
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
+
+  useEffect(() => {
+    registerSecurityEvent('app_opened')
+  }, [])
 
   return (
     <View style={styles.container}>
