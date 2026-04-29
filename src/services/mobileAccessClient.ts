@@ -25,9 +25,7 @@ async function rpc(
     : json?.[fn] ?? json
 
   if (!res.ok || data?.ok === false) {
-    throw new Error(
-      data?.error ?? 'rpc_error'
-    )
+    throw new Error(data?.error ?? 'rpc_error')
   }
 
   return data
@@ -38,13 +36,10 @@ export async function requestAccess(
 ) {
   const deviceId = await getDeviceId()
 
-  return rpc(
-    'request_mobile_access',
-    {
-      p_email: email,
-      p_device_id: deviceId,
-    }
-  )
+  return rpc('request_mobile_access', {
+    p_email: email,
+    p_device_id: deviceId,
+  })
 }
 
 export async function confirmAccess(
@@ -53,12 +48,17 @@ export async function confirmAccess(
 ) {
   const deviceId = await getDeviceId()
 
-  return rpc(
-    'confirm_mobile_access',
-    {
-      p_email: email,
-      p_code: code,
-      p_device_id: deviceId,
-    }
-  )
+  return rpc('confirm_mobile_access', {
+    p_email: email,
+    p_code: code,
+    p_device_id: deviceId,
+  })
+}
+
+export async function getMobileIdentity() {
+  const deviceId = await getDeviceId()
+
+  return rpc('get_mobile_identity', {
+    p_device_id: deviceId,
+  })
 }

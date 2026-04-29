@@ -20,13 +20,17 @@ import { colors, spacing } from '@/theme'
 import { ENV } from '@/config/env'
 import { getDeviceId } from '@/security/deviceIdentity'
 
-import { logoutMobileSession } from '@/services/mobileAuthClient'
-import { getMobileIdentity } from '@/services/mobileIdentityClient'
+
 import {
   requestAccess,
   confirmAccess,
+  getMobileIdentity,
 } from '@/services/mobileAccessClient'
-import { refreshMobileSession } from '@/services/mobileSessionClient'
+
+import {
+  refreshMobileSession,
+  logoutMobileSession,
+} from '@/services/mobileSessionClient'
 
 type Nav =
   NativeStackNavigationProp<

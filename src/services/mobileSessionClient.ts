@@ -1,11 +1,12 @@
 import { ENV } from '@/config/env'
 import { getDeviceId } from '@/security/deviceIdentity'
 
-export async function refreshMobileSession() {
-  const deviceId = await getDeviceId()
-
+async function rpc(
+  fn: string,
+  body: Record<string, unknown>
+) {
   const res = await fetch(
-    `${ENV.SUPABASE_URL}/rest/v1/rpc/refresh_mobile_session`,
+    `${ENV.SUPABASE_URL}/rest/v1/rpc/${fn}`,
     {
       method: 'POST',
       headers: {
@@ -13,19 +14,35 @@ export async function refreshMobileSession() {
         Authorization: `Bearer ${ENV.SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        p_device_id: deviceId,
-      }),
+      body: JSON.stringify(body),
     }
   )
 
   const json = await res.json()
 
-  if (!res.ok) {
-    throw new Error('refresh_error')
+  const data = Array.isArray(json)
+    ? json[0]?.[fn] ?? json[0]
+    : json?.[fn] ?? json
+
+  if (!res.ok || data?.ok === false) {
+    throw new Error(data?.error ?? 'rpc_error')
   }
 
-  return Array.isArray(json)
-    ? json[0]?.refresh_mobile_session ?? {}
-    : json?.refresh_mobile_session ?? json
+  return data
+}
+
+export async function refreshMobileSession() {
+  const deviceId = await getDeviceId()
+
+  return rpc('refresh_mobile_session', {
+    p_device_id: deviceId,
+  })
+}
+
+export async function logoutMobileSession() {
+  const deviceId = await getDeviceId()
+
+  return rpc('logout_mobile_session', {
+    p_device_id: deviceId,
+  })
 }
