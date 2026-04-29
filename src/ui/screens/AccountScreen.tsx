@@ -18,6 +18,7 @@ import type { AccountStackParamList } from '@/navigation/AccountStack'
 import { colors, spacing } from '@/theme'
 import { ENV } from '@/config/env'
 import { getDeviceId } from '@/security/deviceIdentity'
+import { getMobileIdentity } from '@/services/mobileIdentityClient'
 
 type Nav =
   NativeStackNavigationProp<
@@ -30,6 +31,7 @@ export function AccountScreen() {
 
   const [deviceId, setDeviceId] = useState('...')
   const [isOnline, setIsOnline] = useState<boolean | null>(null)
+  const [identity, setIdentity] = useState<any>(null)
 
   useEffect(() => {
     refreshDiagnostics()
@@ -48,6 +50,9 @@ export function AccountScreen() {
   async function refreshDiagnostics() {
     const id = await getDeviceId()
     setDeviceId(id)
+
+    const data = await getMobileIdentity()
+    setIdentity(data)
   }
 
   function copyDeviceId() {
@@ -184,18 +189,22 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.value}>
-          NO VINCULADA
+          {identity?.linked
+            ? identity.email?.toUpperCase()
+            : 'NO VINCULADA'}
         </Text>
 
         <Text style={styles.desc}>
-          Operas en modo local seguro. La siguiente fase
-          habilitará acceso autenticado, sincronización
-          de dispositivos y sesiones confiables.
+          {identity?.linked
+            ? 'Identidad activa en este dispositivo. Sesión disponible y entorno preparado para activos personales.'
+            : 'Operas en modo local seguro. La siguiente fase habilitará acceso autenticado, sincronización de dispositivos y sesiones confiables.'}
         </Text>
 
         <Pressable style={styles.buttonDisabled}>
           <Text style={styles.buttonDisabledText}>
-            Próximamente · Acceso Seguro
+            {identity?.linked
+              ? 'Sesión Activa'
+              : 'Próximamente · Acceso Seguro'}
           </Text>
         </Pressable>
       </View>
