@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { registerSecurityEvent } from '@/services/securityEventsClient'
-import { ENV } from '@/config/env';
+import { ENV } from '@/config/env'
 import {
   View,
   Text,
@@ -8,21 +8,21 @@ import {
   Image,
   StyleSheet,
   StatusBar,
-} from 'react-native';
+} from 'react-native'
 
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { colors, spacing } from '@/theme';
+import type { RootStackParamList } from '../../navigation/RootNavigator'
+import { colors, spacing } from '@/theme'
 
 type Nav = NativeStackNavigationProp<
   RootStackParamList,
   'Home'
->;
+>
 
 export function HomeScreen() {
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation<Nav>()
 
   useEffect(() => {
     registerSecurityEvent('app_opened')
@@ -51,10 +51,7 @@ export function HomeScreen() {
         </Text>
 
         <Text style={styles.subtitle}>
-          Cliente móvil oficial para verificar
-          autenticidad, estado e integridad de
-          registros dentro del ecosistema
-          Pineal Shield.
+          Verifica si un producto es auténtico en segundos.
         </Text>
       </View>
 
@@ -66,28 +63,25 @@ export function HomeScreen() {
         ]}
       >
         <Text style={styles.primaryButtonText}>
-          Escanear certificación
+          Escanear código
         </Text>
       </Pressable>
 
       <Text style={styles.helperText}>
-        Escanea códigos compatibles para validar
-        registros emitidos por Pineal Shield Registry.
+        Apunta tu cámara a un código del producto para verificar su autenticidad.
       </Text>
 
       <View style={styles.trustCard}>
         <Text style={styles.cardLabel}>
-          Trust Layer
+          Confianza
         </Text>
 
         <Text style={styles.trustTitle}>
-          Verificación institucional
+          Verificación en tiempo real
         </Text>
 
         <Text style={styles.trustBody}>
-          PinealID consulta la infraestructura oficial
-          de Pineal Shield y devuelve el estado actual
-          del registro verificado en tiempo real.
+          Cada escaneo valida directamente el producto y muestra si es auténtico o no.
         </Text>
       </View>
 
@@ -101,7 +95,7 @@ export function HomeScreen() {
         </Text>
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -144,7 +138,7 @@ const styles = StyleSheet.create({
   subtitle: {
     color: colors.textSecondary,
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 24,
     maxWidth: 320,
   },
@@ -233,4 +227,4 @@ const styles = StyleSheet.create({
     marginTop: 3,
     letterSpacing: 0.35,
   },
-});
+})

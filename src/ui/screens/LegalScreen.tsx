@@ -5,6 +5,8 @@ import {
   Text,
   StyleSheet,
   StatusBar,
+  Pressable,
+  Linking,
 } from 'react-native';
 
 import { ENV } from '@/config/env';
@@ -36,23 +38,63 @@ export function LegalScreen() {
 
       <Section
         title="Aviso de Privacidad"
-        body="PinealID no recopila datos personales identificables del usuario final como finalidad principal. La aplicación puede registrar eventos técnicos de verificación, identificadores de dispositivo y contexto operativo para seguridad, trazabilidad e integridad del sistema."
+        body={`PinealID no recopila datos personales sensibles como finalidad principal. 
+La aplicación registra información técnica necesaria para operar, incluyendo identificadores de dispositivo, eventos de verificación y contexto operativo, con el objetivo de garantizar seguridad, integridad y trazabilidad del sistema.`}
       />
 
       <Section
         title="Uso de Cámara"
-        body="La cámara se utiliza únicamente para lectura de códigos de certificación. No se almacenan fotografías, video ni contenido visual capturado durante la verificación."
+        body={`La cámara se utiliza exclusivamente para la lectura de códigos de verificación. 
+No se almacenan imágenes, video ni contenido visual generado durante el uso de la aplicación.`}
       />
 
       <Section
         title="Términos de Uso"
-        body="PinealID es una superficie de consulta dentro de la infraestructura Pineal Shield. Los resultados mostrados reflejan el estado actual del registro consultado y, cuando aplique, señales técnicas de integridad criptográfica."
+        body={`PinealID es una interfaz de consulta de la infraestructura Pineal Shield. 
+Los resultados reflejan el estado del registro digital asociado al identificador consultado en el momento de la verificación.
+
+La aplicación no valida directamente la condición física del producto ni garantiza su autenticidad fuera del registro digital.`}
       />
 
       <Section
         title="Limitación"
-        body="La verificación mostrada no sustituye revisiones legales, comerciales, notariales, contractuales o periciales externas."
+        body={`Los resultados de verificación representan evidencia digital basada en registros existentes en Pineal Shield.
+
+Pineal Shield no asume responsabilidad por el uso, interpretación o decisiones tomadas a partir de dichos resultados, ni por condiciones externas al sistema como manipulación física, falsificación externa o uso indebido del producto.
+
+La verificación no sustituye procesos legales, comerciales, notariales o periciales independientes cuando estos sean requeridos.`}
       />
+
+      {/* 🔹 NUEVA SECCIÓN CRÍTICA */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>
+          Documentación legal completa
+        </Text>
+
+        <Text style={styles.cardBody}>
+          Consulta los documentos completos en:
+        </Text>
+
+        <Pressable
+          onPress={() =>
+            Linking.openURL('https://www.pinealshield.com/pinealid/terms')
+          }
+        >
+          <Text style={styles.link}>
+            Términos de uso
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() =>
+            Linking.openURL('https://www.pinealshield.com/pinealid/privacy')
+          }
+        >
+          <Text style={styles.link}>
+            Aviso de privacidad
+          </Text>
+        </Pressable>
+      </View>
 
       <View style={styles.footer}>
         <Text style={styles.version}>
@@ -135,6 +177,13 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 13,
     lineHeight: 21,
+  },
+
+  link: {
+    color: colors.primary,
+    fontSize: 14,
+    marginTop: 8,
+    fontWeight: '600',
   },
 
   footer: {

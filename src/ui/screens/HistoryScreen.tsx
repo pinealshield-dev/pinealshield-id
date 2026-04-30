@@ -78,15 +78,14 @@ export function HistoryScreen() {
       </Text>
 
       <Text style={styles.title}>
-        Historial
+        Verificaciones
       </Text>
 
       <Text style={styles.subtitle}>
-        Actividad reciente registrada por PinealID
-        contra la infraestructura Pineal Shield.
+        Historial de productos que has verificado desde esta aplicación.
       </Text>
 
-      {loading ? (
+      {loading && (
         <View style={styles.card}>
           <ActivityIndicator
             color={colors.primary}
@@ -94,97 +93,69 @@ export function HistoryScreen() {
           />
 
           <Text style={styles.loadingText}>
-            Consultando actividad segura...
+            Cargando historial...
           </Text>
         </View>
-      ) : null}
+      )}
 
-      {!loading && error ? (
+      {!loading && error && (
         <View style={styles.card}>
-          <Text style={styles.sectionLabel}>
-            Estado
-          </Text>
-
           <Text style={styles.emptyTitle}>
-            HISTORIAL NO DISPONIBLE
+            No disponible
           </Text>
 
           <Text style={styles.cardBody}>
-            No fue posible consultar la actividad del
-            dispositivo en este momento.
+            No fue posible cargar tu historial en este momento.
           </Text>
 
           <Pressable
             style={styles.button}
-            onPress={() => navigation.navigate('Verificar')}
+            onPress={() => navigation.navigate('Scan')}
           >
             <Text style={styles.buttonText}>
               Nueva verificación
             </Text>
           </Pressable>
         </View>
-      ) : null}
+      )}
 
-      {!loading && !error && items.length === 0 ? (
+      {!loading && !error && items.length === 0 && (
         <View style={styles.card}>
-          <Text style={styles.sectionLabel}>
-            Estado
-          </Text>
-
           <Text style={styles.emptyTitle}>
-            SIN ACTIVIDAD REGISTRADA
+            Sin verificaciones
           </Text>
 
           <Text style={styles.cardBody}>
-            Aún no existen verificaciones asociadas a
-            este dispositivo.
+            Aún no has verificado ningún producto.
           </Text>
 
           <Pressable
             style={styles.button}
-            onPress={() => navigation.navigate('Verificar')}
+            onPress={() => navigation.navigate('Scan')}
           >
             <Text style={styles.buttonText}>
-              Nueva verificación
+              Verificar ahora
             </Text>
           </Pressable>
         </View>
-      ) : null}
+      )}
 
-      {!loading && !error && items.length > 0 ? (
+      {!loading && !error && items.length > 0 && (
         <>
           {items.map((item) => (
-            <HistoryCard
-              key={item.id}
-              item={item}
-            />
+            <HistoryCard key={item.id} item={item} />
           ))}
         </>
-      ) : null}
+      )}
 
       <View style={styles.card}>
-        <Text style={styles.sectionLabel}>
-          Trazabilidad
+        <Text style={styles.sectionTitle}>
+          Confianza
         </Text>
 
         <Text style={styles.infoText}>
-          Esta vista muestra actividad consultada desde
-          este dispositivo. La evidencia institucional
-          vive en la infraestructura Pineal Shield.
-        </Text>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.sectionLabel}>
-          Metadata técnica
-        </Text>
-
-        <Text style={styles.meta}>
-          Fuente · Pineal Shield Registry
-        </Text>
-
-        <Text style={styles.meta}>
-          Sync Layer · Device Activity
+          Este historial muestra verificaciones realizadas desde tu dispositivo. 
+          Cada resultado refleja el estado real del producto en Pineal Shield.
         </Text>
       </View>
     </ScrollView>
@@ -198,7 +169,7 @@ function HistoryCard({
 }) {
   return (
     <View style={styles.card}>
-      <Text style={styles.sectionLabel}>
+      <Text style={styles.date}>
         {formatDate(item.created_at)}
       </Text>
 
@@ -212,18 +183,12 @@ function HistoryCard({
       </Text>
 
       <Text style={styles.identifier}>
-        {item.identifier ?? 'Registro consultado'}
+        {item.identifier ?? 'Producto verificado'}
       </Text>
 
       <Text style={styles.cardBody}>
-        Consulta registrada desde PinealID.
+        Verificación realizada desde PinealID.
       </Text>
-
-      {item.app_version ? (
-        <Text style={styles.meta}>
-          App · {item.app_version}
-        </Text>
-      ) : null}
     </View>
   )
 }
@@ -231,7 +196,7 @@ function HistoryCard({
 function statusLabel(status: HistoryStatus) {
   switch (status) {
     case 'verified':
-      return 'VERIFICADO'
+      return 'AUTÉNTICO'
     case 'unverified':
       return 'NO VERIFICADO'
     case 'revoked':
@@ -308,72 +273,68 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
 
-  sectionLabel: {
+  date: {
     color: colors.textMuted,
     fontSize: 12,
-    marginBottom: 10,
-  },
-
-  emptyTitle: {
-    color: colors.primary,
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 1,
-    marginBottom: 10,
+    marginBottom: 6,
   },
 
   status: {
     fontSize: 18,
     fontWeight: '700',
-    letterSpacing: 1,
-    marginBottom: 10,
+    marginBottom: 8,
   },
 
   identifier: {
     color: colors.textPrimary,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '600',
     marginBottom: 10,
   },
 
   cardBody: {
     color: colors.textSecondary,
+    fontSize: 14,
+  },
+
+  sectionTitle: {
+    color: colors.textPrimary,
     fontSize: 15,
-    lineHeight: 24,
-    marginBottom: 12,
+    fontWeight: '700',
   },
 
   infoText: {
     color: colors.textSecondary,
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 22,
   },
 
   button: {
-    alignSelf: 'flex-start',
+    marginTop: 16,
     borderWidth: 1,
     borderColor: colors.primary,
     borderRadius: 16,
-    paddingVertical: 13,
+    paddingVertical: 12,
     paddingHorizontal: 20,
   },
 
   buttonText: {
     color: colors.primary,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
 
+  emptyTitle: {
+    color: colors.primary,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+                    
   loadingText: {
     color: colors.textSecondary,
     fontSize: 14,
     textAlign: 'center',
     marginTop: 16,
-  },
-
-  meta: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    marginBottom: 8,
   },
 })

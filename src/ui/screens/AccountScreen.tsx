@@ -9,17 +9,21 @@ import {
   Alert,
   TextInput,
 } from 'react-native'
-import Clipboard from '@react-native-clipboard/clipboard'
 
+import Clipboard from '@react-native-clipboard/clipboard'
 import NetInfo from '@react-native-community/netinfo'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+
+import {
+  getDeviceTrust,
+  type DeviceTrustResult,
+} from '@/services/deviceTrustClient'
 
 import type { AccountStackParamList } from '@/navigation/AccountStack'
 import { colors, spacing } from '@/theme'
 import { ENV } from '@/config/env'
 import { getDeviceId } from '@/security/deviceIdentity'
-
 
 import {
   requestAccess,
@@ -48,7 +52,8 @@ export function AccountScreen() {
   const navigation = useNavigation<Nav>()
 
   const [deviceId, setDeviceId] = useState('...')
-  const [isOnline, setIsOnline] = useState<boolean | null>(null)
+  const [isOnline, setIsOnline] =
+    useState<boolean | null>(null)
 
   const [identity, setIdentity] =
     useState<IdentityState>({
@@ -57,10 +62,15 @@ export function AccountScreen() {
       expires_at: null,
     })
 
+  const [trust, setTrust] =
+    useState<DeviceTrustResult | null>(null)
+
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
-  const [codeSent, setCodeSent] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [codeSent, setCodeSent] =
+    useState(false)
+  const [loading, setLoading] =
+    useState(false)
 
   useEffect(() => {
     boot()
@@ -83,6 +93,13 @@ export function AccountScreen() {
     await refreshDiagnostics()
 
     try {
+      const trustData =
+        await getDeviceTrust()
+
+      setTrust(trustData)
+    } catch {}
+
+    try {
       await refreshMobileSession()
     } catch {}
 
@@ -96,7 +113,8 @@ export function AccountScreen() {
 
   async function loadIdentity() {
     try {
-      const data = await getMobileIdentity()
+      const data =
+        await getMobileIdentity()
 
       const linked = Boolean(data?.linked)
 
@@ -123,6 +141,8 @@ export function AccountScreen() {
 
   async function handleRequestAccess() {
     try {
+      setLoading(true)
+
       if (!email.trim()) {
         Alert.alert(
           'Correo requerido',
@@ -131,9 +151,8 @@ export function AccountScreen() {
         return
       }
 
-      setLoading(true)
-
-      const res = await requestAccess(email)
+      const res =
+        await requestAccess(email)
 
       setCode('')
       setCodeSent(true)
@@ -151,7 +170,7 @@ export function AccountScreen() {
       if (msg.includes('rate_limited')) {
         Alert.alert(
           'Límite temporal',
-          'Demasiados intentos. Espera unos minutos.'
+          'Espera unos minutos antes de intentarlo nuevamente.'
         )
       } else if (
         msg.includes('invalid_email')
@@ -163,7 +182,7 @@ export function AccountScreen() {
       } else {
         Alert.alert(
           'No disponible',
-          'No fue posible generar acceso.'
+          'No fue posible enviar el código.'
         )
       }
     } finally {
@@ -191,7 +210,7 @@ export function AccountScreen() {
 
       Alert.alert(
         'Acceso concedido',
-        'Dispositivo vinculado correctamente.'
+        'Tu dispositivo quedó vinculado correctamente.'
       )
     } catch (error: any) {
       const msg =
@@ -257,7 +276,7 @@ export function AccountScreen() {
 
       Alert.alert(
         'Sesión cerrada',
-        'El dispositivo quedó en modo local.'
+        'El dispositivo volvió a modo local.'
       )
     } catch {
       Alert.alert(
@@ -274,7 +293,7 @@ export function AccountScreen() {
 
     Alert.alert(
       'Copiado',
-      'Identificador copiado.'
+      'Referencia copiada.'
     )
   }
 
@@ -291,7 +310,7 @@ export function AccountScreen() {
       ? 'VERIFICANDO'
       : isOnline
       ? 'CONECTADO'
-      : 'OFFLINE'
+      : 'SIN CONEXIÓN'
 
   const networkColor =
     isOnline === null
@@ -299,6 +318,28 @@ export function AccountScreen() {
       : isOnline
       ? colors.primary
       : '#ff8a65'
+
+  const trustLabel =
+    trust?.riskLevel === 'high'
+      ? 'LIMITADO'
+      : trust?.riskLevel === 'medium'
+      ? 'VERIFICAR'
+      : 'PROTEGIDO'
+
+  const trustColor =
+    trust?.riskLevel === 'high'
+      ? '#ff6b6b'
+      : trust?.riskLevel === 'medium'
+      ? '#f5b942'
+      : colors.primary
+
+  const trustDesc =
+    trust?.riskLevel === 'high'
+      ? 'Algunas funciones pueden estar limitadas por seguridad.'
+      : trust?.riskLevel ===
+        'medium'
+      ? 'Se recomienda revisar el estado del dispositivo para una mejor seguridad.'
+      : 'Este dispositivo cumple condiciones adecuadas para usar PinealID.'
 
   return (
     <ScrollView
@@ -326,13 +367,12 @@ export function AccountScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        Identidad local,
-        dispositivo confiable y
-        acceso progresivo al
-        ecosistema Pineal Shield.
+        Tu identidad digital segura
+        para verificar, proteger y
+        gestionar activos con
+        Pineal Shield.
       </Text>
 
-      {/* IDENTIDAD */}
       <View style={styles.card}>
         <Text
           style={styles.sectionLabel}
@@ -345,20 +385,18 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.descSmall}>
-          Cliente móvil
-          institucional para
-          verificación y futura
-          gestión de activos
-          autenticados.
+          Tu acceso personal a
+          servicios y activos
+          verificados de Pineal
+          Shield.
         </Text>
       </View>
 
-      {/* RED */}
       <View style={styles.card}>
         <Text
           style={styles.sectionLabel}
         >
-          Estado del ecosistema
+          Conexión
         </Text>
 
         <Text
@@ -374,31 +412,33 @@ export function AccountScreen() {
 
         <Text style={styles.desc}>
           {isOnline
-            ? 'Conectividad disponible con servicios Pineal Shield.'
-            : 'Sin conexión para verificaciones remotas.'}
+            ? 'Conectado a servicios seguros de Pineal Shield.'
+            : 'Sin conexión. Algunas funciones estarán limitadas.'}
         </Text>
       </View>
 
-      {/* DEVICE */}
       <View style={styles.card}>
         <Text
           style={styles.sectionLabel}
         >
-          Estado del dispositivo
+          Seguridad del dispositivo
         </Text>
 
-        <Text style={styles.value}>
-          CONFIABLE
+        <Text
+          style={[
+            styles.value,
+            { color: trustColor },
+          ]}
+        >
+          {trustLabel}
         </Text>
 
         <Text style={styles.desc}>
-          Dispositivo registrado
-          con identidad técnica
-          persistente.
+          {trustDesc}
         </Text>
 
         <Text style={styles.meta}>
-          Ref · {shortId}
+          Identificador del dispositivo · {shortId}
         </Text>
 
         <View style={styles.row}>
@@ -413,7 +453,7 @@ export function AccountScreen() {
                 styles.secondaryText
               }
             >
-              Copiar ref
+              Copiar ID
             </Text>
           </Pressable>
 
@@ -428,18 +468,17 @@ export function AccountScreen() {
                 styles.secondaryText
               }
             >
-              Refresh
+              Verificar estado
             </Text>
           </Pressable>
         </View>
       </View>
 
-      {/* CUENTA */}
       <View style={styles.card}>
         <Text
           style={styles.sectionLabel}
         >
-          Cuenta PinealID
+          Tu cuenta
         </Text>
 
         {identity.linked ? (
@@ -451,15 +490,15 @@ export function AccountScreen() {
             </Text>
 
             <Text style={styles.desc}>
-              Sesión activa en
-              este dispositivo.
+              Sesión activa en este
+              dispositivo.
             </Text>
 
             {identity.expires_at ? (
               <Text
                 style={styles.meta}
               >
-                Expira ·{' '}
+                Vigencia ·{' '}
                 {new Date(
                   identity.expires_at
                 ).toLocaleDateString()}
@@ -467,9 +506,12 @@ export function AccountScreen() {
             ) : null}
 
             <Pressable
-              style={
-                styles.primaryButton
-              }
+              style={[
+                styles.primaryButton,
+                loading && {
+                  opacity: 0.55,
+                },
+              ]}
               onPress={
                 handleLogout
               }
@@ -495,8 +537,9 @@ export function AccountScreen() {
             </Text>
 
             <Text style={styles.desc}>
-              Opera en modo local
-              seguro.
+              Vincula tu correo para
+              activar acceso seguro y
+              sincronización futura.
             </Text>
 
             <TextInput
@@ -517,9 +560,12 @@ export function AccountScreen() {
 
             {!codeSent ? (
               <Pressable
-                style={
-                  styles.primaryButton
-                }
+                style={[
+                  styles.primaryButton,
+                  loading && {
+                    opacity: 0.55,
+                  },
+                ]}
                 onPress={
                   handleRequestAccess
                 }
@@ -531,7 +577,7 @@ export function AccountScreen() {
                   }
                 >
                   {loading
-                    ? 'Procesando...'
+                    ? 'Enviando...'
                     : 'Enviar código'}
                 </Text>
               </Pressable>
@@ -551,9 +597,12 @@ export function AccountScreen() {
                 />
 
                 <Pressable
-                  style={
-                    styles.primaryButton
-                  }
+                  style={[
+                    styles.primaryButton,
+                    loading && {
+                      opacity: 0.55,
+                    },
+                  ]}
                   onPress={
                     handleConfirm
                   }
@@ -577,6 +626,7 @@ export function AccountScreen() {
                   onPress={
                     handleRequestAccess
                   }
+                  disabled={loading}
                 >
                   <Text
                     style={
@@ -592,29 +642,24 @@ export function AccountScreen() {
         )}
       </View>
 
-      {/* ACTIVOS */}
       <View style={styles.card}>
         <Text
           style={styles.sectionLabel}
         >
-          Mis activos
+          Tus activos
         </Text>
 
         <Text style={styles.value}>
-          CAPA PREPARADA
+          PRÓXIMAMENTE
         </Text>
 
         <Text style={styles.desc}>
-          Aquí vivirán productos
-          vinculados,
-          certificados,
-          propiedad digital y
-          transferencias
-          verificables.
+          Aquí verás certificados,
+          productos vinculados y
+          propiedad digital.
         </Text>
       </View>
 
-      {/* LEGAL */}
       <Pressable
         style={({
           pressed,
@@ -636,32 +681,21 @@ export function AccountScreen() {
         </Text>
       </Pressable>
 
-      {/* METADATA */}
       <View style={styles.card}>
         <Text
           style={styles.sectionLabel}
         >
-          Metadata técnica
+          Información
         </Text>
 
         <Text style={styles.meta}>
-          App · PinealID{' '}
+          Versión app · PinealID{' '}
           {ENV.APP_VERSION}
         </Text>
 
         <Text style={styles.meta}>
-          Verification Layer ·{' '}
+          Motor de verificación ·{' '}
           {ENV.BUILD_VERSION}
-        </Text>
-
-        <Text style={styles.meta}>
-          Host ·
-          verify.pinealshield.com
-        </Text>
-
-        <Text style={styles.meta}>
-          Mode · Identity Edge
-          Client
         </Text>
       </View>
     </ScrollView>
