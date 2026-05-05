@@ -56,7 +56,7 @@ export function ResultScreen() {
 
         setResult(res)
 
-        if (res.status === 'verified') {
+        if (res.status !== 'unverified') {
           saveHistory({
             hash: raw,
             nombre: res.nombre,
@@ -90,7 +90,7 @@ export function ResultScreen() {
     return (
       <StateScreen
         title="Código no válido"
-        subtitle="Este código no corresponde a un producto verificable."
+        subtitle="Este código no corresponde a un registro verificable."
       />
     )
   }
@@ -111,26 +111,49 @@ export function ResultScreen() {
     return (
       <StateScreen
         title="No verificado"
-        subtitle="No se encontró un registro válido para este producto."
+        subtitle="No se encontró un registro válido dentro de Pineal Shield."
         button="Intentar nuevamente"
         onPress={() => navigation.replace('Scan')}
       />
     )
   }
 
-  // --- VALIDADO ---
+  // --- RESULTADO RESUELTO ---
   const isVerified = result.status === 'verified'
-  const chainValid = isVerified
-    ? result.chain_valid ?? true
-    : true
+  const isRevoked = result.status === 'revoked'
+  const isReplaced = result.status === 'replaced'
 
-  const mainStatus = chainValid
-    ? 'AUTÉNTICO'
-    : 'VERIFICADO CON OBSERVACIONES'
+  const chainValid = result.chain_valid ?? true
+  const entityLabel = getEntityLabel(result.kind)
+  const identifier = getIdentifier(result, raw ?? '')
 
-  const mainText = chainValid
-    ? 'Este producto es auténtico.'
-    : 'El producto existe, pero no se validó completamente.'
+  const mainStatus = (() => {
+    if (isVerified && chainValid) return 'AUTÉNTICO'
+    if (isVerified && !chainValid) return 'VERIFICADO CON OBSERVACIONES'
+    if (isRevoked) return 'REVOCADO'
+    if (isReplaced) return 'REEMPLAZADO'
+    return 'NO VERIFICADO'
+  })()
+
+  const mainText = (() => {
+    if (isVerified && chainValid) {
+      return `${entityLabel} verificado contra el registro oficial.`
+    }
+
+    if (isVerified && !chainValid) {
+      return `${entityLabel} existe, pero requiere validación adicional.`
+    }
+
+    if (isRevoked) {
+      return `${entityLabel} invalidado por la entidad emisora.`
+    }
+
+    if (isReplaced) {
+      return `${entityLabel} reemplazado por una versión más reciente.`
+    }
+
+    return 'No se encontró un registro válido.'
+  })()
 
   return (
     <ScrollView
@@ -153,23 +176,23 @@ export function ResultScreen() {
       <View
         style={[
           styles.hero,
-          chainValid
+          isVerified && chainValid
             ? styles.heroValid
-            : styles.heroWarn,
+            : isVerified && !chainValid
+            ? styles.heroWarn
+            : styles.heroDanger,
         ]}
       >
         <Text style={styles.heroLabel}>
-          Estado del producto
+          Estado del registro
         </Text>
 
         <Text style={styles.heroValue}>
-          {chainValid ? 'VERIFICADO' : 'PARCIAL'}
+          {mainStatus}
         </Text>
 
         <Text style={styles.heroText}>
-          {chainValid
-            ? 'La información coincide con el registro oficial.'
-            : 'Se recomienda validar el origen del producto.'}
+          {mainText}
         </Text>
       </View>
 
@@ -180,7 +203,11 @@ export function ResultScreen() {
           <Field label="Marca" value={result.brand_name} />
         )}
 
-        <Field label="Tipo" value={cap(result.kind)} />
+        {result.source_entity && !result.brand_name && (
+          <Field label="Entidad emisora" value={result.source_entity} />
+        )}
+
+        <Field label="Tipo" value={entityLabel} />
 
         <Field
           label="Emitido"
@@ -195,9 +222,65 @@ export function ResultScreen() {
 
       <Card>
         <Field
-          label="Identificador del producto"
-          value={mask(raw!)}
+          label={`Identificador del ${entityLabel.toLowerCase()}`}
+          value={mask(identifier)}
         />
+
+        {result.hash && (
+          <Field
+            label="Hash"
+            value={mask(result.hash)}
+          />
+        )}
+
+        {result.verification_origin && (
+          <Field
+            label="Origen de verificación"
+            value={result.verification_origin}
+          />
+        )}
+      </Card>
+
+      {result.entity === 'document' && (
+        <Card>
+          <Text style={styles.sectionTitle}>
+            Documento
+          </Text>
+
+          {'holder_name' in result && result.holder_name && (
+            <Field
+              label="Titular"
+              value={result.holder_name}
+            />
+          )}
+
+          {'holder_identifier' in result &&
+            result.holder_identifier && (
+              <Field
+                label="Identificador del titular"
+                value={result.holder_identifier}
+              />
+            )}
+
+          {'file_url' in result && result.file_url && (
+            <Field
+              label="Archivo"
+              value="Documento asociado al registro"
+            />
+          )}
+        </Card>
+      )}
+
+      <Card>
+        <Text style={styles.sectionTitle}>
+          Integridad
+        </Text>
+
+        <Text style={styles.sectionText}>
+          {chainValid
+            ? 'La cadena de certificación es válida.'
+            : 'La cadena de certificación requiere revisión adicional.'}
+        </Text>
       </Card>
 
       <Card>
@@ -206,7 +289,7 @@ export function ResultScreen() {
         </Text>
 
         <Text style={styles.sectionText}>
-          Este producto fue verificado desde PinealID.
+          {`${entityLabel} verificado desde PinealID.`}
         </Text>
       </Card>
 
@@ -297,14 +380,41 @@ function Field({
 
 // --- HELPERS ---
 
-function mask(v: string) {
-  if (v.length <= 12) return v
-  return `${v.slice(0, 6)}…${v.slice(-6)}`
+function getEntityLabel(kind: string) {
+  switch (kind) {
+    case 'producto':
+      return 'Producto'
+    case 'pieza':
+      return 'Pieza'
+    case 'document':
+      return 'Documento'
+    default:
+      return 'Registro'
+  }
 }
 
-function cap(v: string) {
+function getIdentifier(result: VerifyPublicResult, fallback: string) {
+  if (result.status === 'unverified') return fallback
+
+  if ('artifact_piece_id' in result && result.artifact_piece_id) {
+    return result.artifact_piece_id
+  }
+
+  if ('artifact_id' in result && result.artifact_id) {
+    return result.artifact_id
+  }
+
+  if ('document_id' in result && result.document_id) {
+    return result.document_id
+  }
+
+  return fallback
+}
+
+function mask(v: string) {
   if (!v) return ''
-  return v.charAt(0).toUpperCase() + v.slice(1)
+  if (v.length <= 12) return v
+  return `${v.slice(0, 6)}…${v.slice(-6)}`
 }
 
 function date(v: string) {
@@ -366,6 +476,10 @@ const styles = StyleSheet.create({
   heroWarn: {
     backgroundColor: '#2b210c',
     borderColor: '#7a6419',
+  },
+  heroDanger: {
+    backgroundColor: '#2a0d0d',
+    borderColor: '#7f1d1d',
   },
   heroLabel: {
     color: colors.textMuted,
