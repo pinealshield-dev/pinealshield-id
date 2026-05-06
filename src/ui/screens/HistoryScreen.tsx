@@ -78,11 +78,11 @@ export function HistoryScreen() {
       </Text>
 
       <Text style={styles.title}>
-        Verificaciones
+        Registro de actividad
       </Text>
 
       <Text style={styles.subtitle}>
-        Historial de productos que has verificado desde esta aplicación.
+        Actividad reciente asociada a verificaciones ejecutadas desde PinealID.
       </Text>
 
       {loading && (
@@ -93,7 +93,7 @@ export function HistoryScreen() {
           />
 
           <Text style={styles.loadingText}>
-            Cargando historial...
+            Consultando actividad verificada...
           </Text>
         </View>
       )}
@@ -150,12 +150,11 @@ export function HistoryScreen() {
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>
-          Confianza
+          Integridad del historial
         </Text>
 
         <Text style={styles.infoText}>
-          Este historial muestra verificaciones realizadas desde tu dispositivo. 
-          Cada resultado refleja el estado real del producto en Pineal Shield.
+          Cada entrada refleja el estado verificado del registro al momento de la validación.
         </Text>
       </View>
     </ScrollView>
@@ -187,7 +186,7 @@ function HistoryCard({
       </Text>
 
       <Text style={styles.cardBody}>
-        Verificación realizada desde PinealID.
+        Resultado registrado en el historial seguro del dispositivo.
       </Text>
     </View>
   )
@@ -213,7 +212,7 @@ function statusColor(status: HistoryStatus) {
     case 'verified':
       return colors.primary
     case 'revoked':
-      return '#ff8a65'
+      return '#f87171'
     case 'replaced':
       return '#ffd166'
     case 'unverified':
@@ -246,7 +245,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 10,
     letterSpacing: 2.4,
-    marginTop: 10,
+    marginTop: 34,
     marginBottom: 14,
   },
 

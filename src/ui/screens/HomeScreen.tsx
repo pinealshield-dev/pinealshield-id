@@ -51,7 +51,7 @@ export function HomeScreen() {
         </Text>
 
         <Text style={styles.subtitle}>
-          Verifica si un producto es auténtico en segundos.
+          Verifica autenticidad, estado y evidencia certificada.
         </Text>
       </View>
 
@@ -63,25 +63,25 @@ export function HomeScreen() {
         ]}
       >
         <Text style={styles.primaryButtonText}>
-          Escanear código
+          Iniciar verificación
         </Text>
       </Pressable>
 
       <Text style={styles.helperText}>
-        Apunta tu cámara a un código del producto para verificar su autenticidad.
+        Escanea un identificador certificado para validar su estado y evidencia asociada.
       </Text>
 
       <View style={styles.trustCard}>
         <Text style={styles.cardLabel}>
-          Confianza
+          Verification Layer
         </Text>
 
         <Text style={styles.trustTitle}>
-          Verificación en tiempo real
+          Infraestructura certificada
         </Text>
 
         <Text style={styles.trustBody}>
-          Cada escaneo valida directamente el producto y muestra si es auténtico o no.
+          Cada verificación consulta evidencia certificada desde Pineal Shield.
         </Text>
       </View>
 
@@ -103,8 +103,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     paddingHorizontal: spacing.lg,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingTop: 96,
   },
 
   hero: {
@@ -150,9 +151,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: 17,
     paddingHorizontal: 28,
+    borderWidth: 1,
+    borderColor: '#14c38b',
     borderRadius: 20,
     shadowColor: colors.primary,
-    shadowOpacity: 0.22,
+    shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
     elevation: 7,

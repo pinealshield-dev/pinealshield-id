@@ -309,7 +309,7 @@ export function AccountScreen() {
     isOnline === null
       ? 'VERIFICANDO'
       : isOnline
-      ? 'CONECTADO'
+      ? 'OPERATIVO'
       : 'SIN CONEXIÓN'
 
   const networkColor =
@@ -323,8 +323,8 @@ export function AccountScreen() {
     trust?.riskLevel === 'high'
       ? 'LIMITADO'
       : trust?.riskLevel === 'medium'
-      ? 'VERIFICAR'
-      : 'PROTEGIDO'
+      ? 'REVISAR'
+      : 'VERIFICADO'
 
   const trustColor =
     trust?.riskLevel === 'high'
@@ -338,8 +338,8 @@ export function AccountScreen() {
       ? 'Algunas funciones pueden estar limitadas por seguridad.'
       : trust?.riskLevel ===
         'medium'
-      ? 'Se recomienda revisar el estado del dispositivo para una mejor seguridad.'
-      : 'Este dispositivo cumple condiciones adecuadas para usar PinealID.'
+      ? 'Algunas capacidades fueron limitadas por integridad o seguridad.'
+      : 'El entorno operativo cumple condiciones válidas para verificaciones seguras.'
 
   return (
     <ScrollView
@@ -363,21 +363,18 @@ export function AccountScreen() {
       </Text>
 
       <Text style={styles.title}>
-        Cuenta
+        Identidad operativa
       </Text>
 
       <Text style={styles.subtitle}>
-        Tu identidad digital segura
-        para verificar, proteger y
-        gestionar activos con
-        Pineal Shield.
+        Entorno verificado para validación institucional y acceso seguro.
       </Text>
 
       <View style={styles.card}>
         <Text
           style={styles.sectionLabel}
         >
-          Identidad
+          Cliente verificado
         </Text>
 
         <Text style={styles.valueBig}>
@@ -385,10 +382,7 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.descSmall}>
-          Tu acceso personal a
-          servicios y activos
-          verificados de Pineal
-          Shield.
+          Cliente oficial de verificación conectado a la infraestructura Pineal Shield.
         </Text>
       </View>
 
@@ -396,7 +390,7 @@ export function AccountScreen() {
         <Text
           style={styles.sectionLabel}
         >
-          Conexión
+          Estado operativo
         </Text>
 
         <Text
@@ -412,8 +406,8 @@ export function AccountScreen() {
 
         <Text style={styles.desc}>
           {isOnline
-            ? 'Conectado a servicios seguros de Pineal Shield.'
-            : 'Sin conexión. Algunas funciones estarán limitadas.'}
+            ? 'Acceso operativo disponible para validaciones institucionales.'
+            : 'Modo local activo. Algunas validaciones requieren conexión segura.'}
         </Text>
       </View>
 
@@ -421,7 +415,7 @@ export function AccountScreen() {
         <Text
           style={styles.sectionLabel}
         >
-          Seguridad del dispositivo
+          Integridad del entorno
         </Text>
 
         <Text
@@ -478,7 +472,7 @@ export function AccountScreen() {
         <Text
           style={styles.sectionLabel}
         >
-          Tu cuenta
+          Acceso institucional
         </Text>
 
         {identity.linked ? (
@@ -533,7 +527,7 @@ export function AccountScreen() {
             <Text
               style={styles.value}
             >
-              NO VINCULADA
+              NO INICIALIZADO
             </Text>
 
             <Text style={styles.desc}>
@@ -646,17 +640,15 @@ export function AccountScreen() {
         <Text
           style={styles.sectionLabel}
         >
-          Tus activos
+          Registros vinculados
         </Text>
 
         <Text style={styles.value}>
-          PRÓXIMAMENTE
+          DISPONIBLE EN FASE POSTERIOR
         </Text>
 
         <Text style={styles.desc}>
-          Aquí verás certificados,
-          productos vinculados y
-          propiedad digital.
+          Este entorno permitirá consultar registros, certificados y evidencia vinculada.
         </Text>
       </View>
 
@@ -677,7 +669,7 @@ export function AccountScreen() {
         <Text
           style={styles.buttonText}
         >
-          Privacidad y Legal
+          Privacidad y cumplimiento
         </Text>
       </Pressable>
 
@@ -685,7 +677,7 @@ export function AccountScreen() {
         <Text
           style={styles.sectionLabel}
         >
-          Información
+          Entorno
         </Text>
 
         <Text style={styles.meta}>
@@ -718,7 +710,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 10,
     letterSpacing: 2.4,
-    marginTop: 10,
+    marginTop: 34,
     marginBottom: 14,
   },
 

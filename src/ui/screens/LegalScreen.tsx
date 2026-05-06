@@ -33,25 +33,28 @@ export function LegalScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        Información institucional del cliente móvil PinealID.
+        Marco operativo y documental del entorno PinealID.
       </Text>
 
       <Section
         title="Aviso de Privacidad"
-        body={`PinealID no recopila datos personales sensibles como finalidad principal. 
-La aplicación registra información técnica necesaria para operar, incluyendo identificadores de dispositivo, eventos de verificación y contexto operativo, con el objetivo de garantizar seguridad, integridad y trazabilidad del sistema.`}
+        body={`PinealID procesa información técnica mínima necesaria para operar validaciones, proteger integridad operativa y mantener trazabilidad del entorno.
+
+La aplicación no tiene como finalidad principal recopilar información personal sensible.`}
       />
 
       <Section
         title="Uso de Cámara"
-        body={`La cámara se utiliza exclusivamente para la lectura de códigos de verificación. 
-No se almacenan imágenes, video ni contenido visual generado durante el uso de la aplicación.`}
+        body={`PinealID procesa información técnica mínima necesaria para operar validaciones, proteger integridad operativa y mantener trazabilidad del entorno.
+
+La aplicación no tiene como finalidad principal recopilar información personal sensible.`}
       />
 
       <Section
         title="Términos de Uso"
-        body={`PinealID es una interfaz de consulta de la infraestructura Pineal Shield. 
-Los resultados reflejan el estado del registro digital asociado al identificador consultado en el momento de la verificación.
+        body={`PinealID funciona como interfaz de consulta para registros emitidos dentro de la infraestructura Pineal Shield.
+
+Los resultados reflejan exclusivamente el estado digital del identificador validado al momento de la consulta.
 
 La aplicación no valida directamente la condición física del producto ni garantiza su autenticidad fuera del registro digital.`}
       />
@@ -60,7 +63,7 @@ La aplicación no valida directamente la condición física del producto ni gara
         title="Limitación"
         body={`Los resultados de verificación representan evidencia digital basada en registros existentes en Pineal Shield.
 
-Pineal Shield no asume responsabilidad por el uso, interpretación o decisiones tomadas a partir de dichos resultados, ni por condiciones externas al sistema como manipulación física, falsificación externa o uso indebido del producto.
+Pineal Shield no asume responsabilidad por el uso, interpretación o decisiones tomadas a partir de dichos resultados, ni por condiciones externas al sistema como manipulación física, falsificación externa o uso indebido del registro o activo asociado.
 
 La verificación no sustituye procesos legales, comerciales, notariales o periciales independientes cuando estos sean requeridos.`}
       />
@@ -68,11 +71,11 @@ La verificación no sustituye procesos legales, comerciales, notariales o perici
       {/* 🔹 NUEVA SECCIÓN CRÍTICA */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>
-          Documentación legal completa
+          Documentación institucional
         </Text>
 
         <Text style={styles.cardBody}>
-          Consulta los documentos completos en:
+          Consulta documentación vigente:
         </Text>
 
         <Pressable
@@ -139,7 +142,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 10,
     letterSpacing: 2.4,
-    marginTop: 8,
+    marginTop: 34,
     marginBottom: 10,
   },
 
@@ -160,8 +163,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderColor:  '#1a2230',
+    backgroundColor: '#0b1018',
     padding: 18,
     marginBottom: 14,
   },

@@ -41,26 +41,24 @@ export function OfflineScreen() {
       </Text>
 
       <Text style={styles.title}>
-        Sin conexión segura
+        Conexión no disponible
       </Text>
 
       <Text style={styles.subtitle}>
-        La validación institucional requiere acceso a red.
+        La validación institucional requiere conectividad activa.
       </Text>
 
       <View style={styles.card}>
         <Text style={styles.cardLabel}>
-          Estado
+          Entorno operativo
         </Text>
 
         <Text style={styles.cardTitle}>
-          MODO OFFLINE
+          VALIDACIÓN PAUSADA
         </Text>
 
         <Text style={styles.cardBody}>
-          PinealID necesita conectividad para consultar
-          la infraestructura oficial y verificar el
-          estado actual del registro solicitado.
+          PinealID requiere conectividad para consultar evidencia certificada y validar el estado actual del identificador.
         </Text>
       </View>
 
@@ -72,7 +70,7 @@ export function OfflineScreen() {
         onPress={() => navigation.navigate('Home')}
       >
         <Text style={styles.buttonText}>
-          Reintentar verificación
+          Reanudar validación
         </Text>
       </Pressable>
 
@@ -88,7 +86,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 110,
     paddingHorizontal: spacing.lg,
   },
 

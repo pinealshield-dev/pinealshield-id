@@ -161,8 +161,8 @@ export function ScanScreen() {
         <Text
           style={styles.subtitle}
         >
-          Alinea el código dentro
-          del marco seguro
+          Escanea un identificador
+          certificado Pineal Shield
         </Text>
       </View>
 
@@ -181,8 +181,7 @@ export function ScanScreen() {
         <Text
           style={styles.footerText}
         >
-          Verificación directa
-          contra Pineal Shield
+          Validación institucional en tiempo real
         </Text>
       </View>
     </View>
@@ -304,7 +303,7 @@ const styles = StyleSheet.create({
 
   header: {
     position: 'absolute',
-    top: 58,
+    top: 82,
     left: 24,
     right: 24,
     alignItems:
@@ -340,14 +339,14 @@ const styles = StyleSheet.create({
   },
 
   frame: {
-    width: 270,
-    height: 270,
+    width: 292,
+    height: 292,
     borderRadius: 22,
     backgroundColor:
-      'rgba(0,0,0,0.15)',
+      'rgba(255,255,255,0.015)',
     borderWidth: 1,
     borderColor:
-      'rgba(255,255,255,0.08)',
+      'rgba(20,255,210,0.08)',
   },
 
   corner: {
