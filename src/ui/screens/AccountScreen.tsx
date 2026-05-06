@@ -335,7 +335,7 @@ export function AccountScreen() {
 
   const trustDesc =
     trust?.riskLevel === 'high'
-      ? 'Algunas funciones pueden estar limitadas por seguridad.'
+      ? 'Algunas capacidades operativas fueron limitadas por integridad o seguridad.'
       : trust?.riskLevel ===
         'medium'
       ? 'Algunas capacidades fueron limitadas por integridad o seguridad.'
@@ -367,7 +367,7 @@ export function AccountScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        Entorno verificado para validación institucional y acceso seguro.
+        Entorno operativo para consulta segura de registros y evidencia certificada.
       </Text>
 
       <View style={styles.card}>
@@ -382,7 +382,7 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.descSmall}>
-          Cliente oficial de verificación conectado a la infraestructura Pineal Shield.
+          Cliente operativo conectado a la infraestructura Pineal Shield.
         </Text>
       </View>
 
@@ -406,8 +406,8 @@ export function AccountScreen() {
 
         <Text style={styles.desc}>
           {isOnline
-            ? 'Acceso operativo disponible para validaciones institucionales.'
-            : 'Modo local activo. Algunas validaciones requieren conexión segura.'}
+            ? 'Acceso operativo disponible para consultas seguras de registros certificados.'
+            : 'Modo local activo. Algunas consultas requieren conectividad segura.'}
         </Text>
       </View>
 
@@ -432,7 +432,7 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.meta}>
-          Identificador del dispositivo · {shortId}
+          Entorno operativo · {shortId}
         </Text>
 
         <View style={styles.row}>
@@ -447,7 +447,7 @@ export function AccountScreen() {
                 styles.secondaryText
               }
             >
-              Copiar ID
+              Copiar referencia
             </Text>
           </Pressable>
 
@@ -462,7 +462,7 @@ export function AccountScreen() {
                 styles.secondaryText
               }
             >
-              Verificar estado
+              Actualizar estado
             </Text>
           </Pressable>
         </View>
@@ -531,9 +531,7 @@ export function AccountScreen() {
             </Text>
 
             <Text style={styles.desc}>
-              Vincula tu correo para
-              activar acceso seguro y
-              sincronización futura.
+              Vincula tu correo para habilitar acceso institucional y continuidad operativa.
             </Text>
 
             <TextInput
@@ -572,7 +570,7 @@ export function AccountScreen() {
                 >
                   {loading
                     ? 'Enviando...'
-                    : 'Enviar código'}
+                    : 'Solicitar acceso'}
                 </Text>
               </Pressable>
             ) : (
@@ -648,7 +646,7 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.desc}>
-          Este entorno permitirá consultar registros, certificados y evidencia vinculada.
+          Este entorno permitirá gestionar registros certificados y evidencia digital asociada.
         </Text>
       </View>
 
@@ -686,7 +684,7 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.meta}>
-          Motor de verificación ·{' '}
+          Infraestructura ·{' '}
           {ENV.BUILD_VERSION}
         </Text>
       </View>

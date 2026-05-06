@@ -82,7 +82,7 @@ export function HistoryScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        Actividad reciente asociada a verificaciones ejecutadas desde PinealID.
+        Actividad reciente asociada a consultas realizadas dentro del entorno PinealID.
       </Text>
 
       {loading && (
@@ -93,7 +93,7 @@ export function HistoryScreen() {
           />
 
           <Text style={styles.loadingText}>
-            Consultando actividad verificada...
+            Consultando registros recientes...
           </Text>
         </View>
       )}
@@ -126,7 +126,7 @@ export function HistoryScreen() {
           </Text>
 
           <Text style={styles.cardBody}>
-            Aún no has verificado ningún producto.
+            Aún no existen registros consultados desde este dispositivo.
           </Text>
 
           <Pressable
@@ -134,7 +134,7 @@ export function HistoryScreen() {
             onPress={() => navigation.navigate('Scan')}
           >
             <Text style={styles.buttonText}>
-              Verificar ahora
+              Consultar registro
             </Text>
           </Pressable>
         </View>
@@ -154,7 +154,7 @@ export function HistoryScreen() {
         </Text>
 
         <Text style={styles.infoText}>
-          Cada entrada refleja el estado verificado del registro al momento de la validación.
+          Cada entrada refleja el estado registrado al momento de la consulta.
         </Text>
       </View>
     </ScrollView>
@@ -182,7 +182,7 @@ function HistoryCard({
       </Text>
 
       <Text style={styles.identifier}>
-        {item.identifier ?? 'Producto verificado'}
+        {item.identifier ?? 'Registro consultado'}
       </Text>
 
       <Text style={styles.cardBody}>
@@ -195,9 +195,9 @@ function HistoryCard({
 function statusLabel(status: HistoryStatus) {
   switch (status) {
     case 'verified':
-      return 'AUTÉNTICO'
+      return 'REGISTRO VÁLIDO'
     case 'unverified':
-      return 'NO VERIFICADO'
+      return 'SIN REGISTRO'
     case 'revoked':
       return 'REVOCADO'
     case 'replaced':

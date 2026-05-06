@@ -38,30 +38,30 @@ export function LegalScreen() {
 
       <Section
         title="Aviso de Privacidad"
-        body={`PinealID procesa información técnica mínima necesaria para operar validaciones, proteger integridad operativa y mantener trazabilidad del entorno.
+        body={`PinealID procesa información técnica mínima necesaria para operar consultas seguras de registros certificados, proteger integridad operativa y mantener trazabilidad del entorno.
 
 La aplicación no tiene como finalidad principal recopilar información personal sensible.`}
       />
 
       <Section
         title="Uso de Cámara"
-        body={`PinealID procesa información técnica mínima necesaria para operar validaciones, proteger integridad operativa y mantener trazabilidad del entorno.
+        body={`La cámara es utilizada exclusivamente para consultar identificadores emitidos dentro de la infraestructura Pineal Shield.
 
-La aplicación no tiene como finalidad principal recopilar información personal sensible.`}
+Las imágenes capturadas no son almacenadas permanentemente como contenido fotográfico del usuario.`}
       />
 
       <Section
         title="Términos de Uso"
         body={`PinealID funciona como interfaz de consulta para registros emitidos dentro de la infraestructura Pineal Shield.
 
-Los resultados reflejan exclusivamente el estado digital del identificador validado al momento de la consulta.
+Los resultados reflejan exclusivamente el estado digital del registro consultado al momento de la consulta.
 
 La aplicación no valida directamente la condición física del producto ni garantiza su autenticidad fuera del registro digital.`}
       />
 
       <Section
         title="Limitación"
-        body={`Los resultados de verificación representan evidencia digital basada en registros existentes en Pineal Shield.
+        body={`Los resultados presentados representan evidencia digital basada en registros existentes en Pineal Shield.
 
 Pineal Shield no asume responsabilidad por el uso, interpretación o decisiones tomadas a partir de dichos resultados, ni por condiciones externas al sistema como manipulación física, falsificación externa o uso indebido del registro o activo asociado.
 
@@ -105,7 +105,7 @@ La verificación no sustituye procesos legales, comerciales, notariales o perici
         </Text>
 
         <Text style={styles.build}>
-          Verification Layer · {ENV.BUILD_VERSION}
+          Infrastructure Layer · {ENV.BUILD_VERSION}
         </Text>
       </View>
     </ScrollView>

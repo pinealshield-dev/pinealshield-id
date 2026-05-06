@@ -11,6 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../../navigation/RootNavigator'
+import { ENV } from '@/config/env';
 
 import { colors, spacing } from '@/theme'
 
@@ -45,7 +46,7 @@ export function OfflineScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        La validación institucional requiere conectividad activa.
+        La consulta institucional requiere conectividad activa.
       </Text>
 
       <View style={styles.card}>
@@ -54,11 +55,11 @@ export function OfflineScreen() {
         </Text>
 
         <Text style={styles.cardTitle}>
-          VALIDACIÓN PAUSADA
+          CONSULTA NO DISPONIBLE
         </Text>
 
         <Text style={styles.cardBody}>
-          PinealID requiere conectividad para consultar evidencia certificada y validar el estado actual del identificador.
+          PinealID requiere conectividad para consultar evidencia certificada y obtener el estado actual del registro solicitado.
         </Text>
       </View>
 
@@ -70,12 +71,12 @@ export function OfflineScreen() {
         onPress={() => navigation.navigate('Home')}
       >
         <Text style={styles.buttonText}>
-          Reanudar validación
+          Reanudar consulta
         </Text>
       </Pressable>
 
       <Text style={styles.footer}>
-        Verification Layer · 2026.02
+        Infrastructure Layer · {ENV.BUILD_VERSION}
       </Text>
     </View>
   )

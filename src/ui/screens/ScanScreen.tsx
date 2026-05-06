@@ -122,7 +122,7 @@ export function ScanScreen() {
     return (
       <CenteredBlock
         title="Acceso requerido"
-        subtitle="PinealID utiliza la cámara únicamente para leer códigos oficiales."
+        subtitle="PinealID utiliza la cámara para consultar registros certificados dentro de la infraestructura Pineal Shield."
         buttonText="Conceder acceso"
         onPress={requestPermission}
       />
@@ -155,14 +155,13 @@ export function ScanScreen() {
         </Text>
 
         <Text style={styles.title}>
-          Verificar autenticidad
+          Consultar registro
         </Text>
 
         <Text
           style={styles.subtitle}
         >
-          Escanea un identificador
-          certificado Pineal Shield
+          Consulta evidencia digital asociada a un registro certificado Pineal Shield
         </Text>
       </View>
 
@@ -181,7 +180,7 @@ export function ScanScreen() {
         <Text
           style={styles.footerText}
         >
-          Validación institucional en tiempo real
+          Consulta institucional segura en tiempo real
         </Text>
       </View>
     </View>

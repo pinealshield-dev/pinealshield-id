@@ -100,7 +100,7 @@ export function ResultScreen() {
   if (status === 'invalid') {
     return (
       <StateScreen
-        title="Código no válido"
+        title="Identificador inválido"
         subtitle="Este identificador no corresponde a un registro verificable."
       />
     )
@@ -163,7 +163,7 @@ export function ResultScreen() {
 
   const mainStatus = (() => {
     if (isVerified && chainValid)
-      return 'AUTÉNTICO'
+      return 'REGISTRO CON OBSERVACIONES'
 
     if (isVerified && !chainValid) {
       return 'VALIDADO CON OBSERVACIONES'
@@ -297,7 +297,7 @@ export function ResultScreen() {
 
         {verifiedResult.hash && (
           <Field
-            label="Hash"
+            label="Referencia"
             value={mask(
               verifiedResult.hash
             )}
@@ -318,7 +318,7 @@ export function ResultScreen() {
         'document' && (
         <Card>
           <Text style={styles.sectionTitle}>
-            Archivo certificado
+            Documento asociado
           </Text>
 
           {verifiedResult.holder_name && (
@@ -355,7 +355,7 @@ export function ResultScreen() {
 
         <Text style={styles.sectionText}>
           {chainValid
-            ? 'La evidencia criptográfica del registro es válida.'
+            ? 'La integridad digital del registro es válida.'
             : 'La integridad del registro requiere revisión manual.'}
         </Text>
       </Card>
@@ -366,7 +366,7 @@ export function ResultScreen() {
         </Text>
 
         <Text style={styles.sectionText}>
-          Verificación ejecutada desde cliente móvil PinealID.
+          Consulta ejecutada desde entorno operativo PinealID.
         </Text>
       </Card>
 
