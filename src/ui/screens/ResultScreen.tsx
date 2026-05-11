@@ -162,11 +162,12 @@ export function ResultScreen() {
   )
 
   const mainStatus = (() => {
-    if (isVerified && chainValid)
-      return 'REGISTRO CON OBSERVACIONES'
+    if (isVerified && chainValid) {
+      return 'AUTÉNTICO'
+    }
 
     if (isVerified && !chainValid) {
-      return 'VALIDADO CON OBSERVACIONES'
+      return 'REGISTRO CON OBSERVACIONES'
     }
 
     if (isRevoked) return 'REVOCADO'

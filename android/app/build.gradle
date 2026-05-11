@@ -21,7 +21,7 @@ android {
         applicationId "com.pinealid"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2026050601
+        versionCode 2026051101
         versionName "1.0.4"
     }
 
