@@ -51,7 +51,7 @@ export function HomeScreen() {
         </Text>
 
         <Text style={styles.subtitle}>
-          Consulta registros certificados y evidencia digital validada.
+          Consulta registros verificados y evidencia digital asociada.
         </Text>
       </View>
 
@@ -68,7 +68,7 @@ export function HomeScreen() {
       </Pressable>
 
       <Text style={styles.helperText}>
-        Consulta el estado y evidencia asociada a un registro certificado Pineal Shield.
+        Consulta el estado y evidencia asociada a registros emitidos dentro de Pineal Shield.
       </Text>
 
       <View style={styles.trustCard}>
@@ -77,11 +77,11 @@ export function HomeScreen() {
         </Text>
 
         <Text style={styles.trustTitle}>
-          Infraestructura certificada
+          Infraestructura de integridad digital
         </Text>
 
         <Text style={styles.trustBody}>
-          Cada consulta valida evidencia digital certificada dentro de la infraestructura Pineal Shield.
+          Cada consulta refleja el estado y evidencia disponible del registro dentro de Pineal Shield.
         </Text>
       </View>
 

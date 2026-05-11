@@ -161,7 +161,7 @@ export function ScanScreen() {
         <Text
           style={styles.subtitle}
         >
-          Consulta evidencia digital asociada a un registro certificado Pineal Shield
+          Consulta evidencia digital asociada a un registro verificado Pineal Shield
         </Text>
       </View>
 

@@ -163,7 +163,7 @@ export function ResultScreen() {
 
   const mainStatus = (() => {
     if (isVerified && chainValid) {
-      return 'AUTÉNTICO'
+      return 'REGISTRO VERIFICADO'
     }
 
     if (isVerified && !chainValid) {
@@ -179,7 +179,7 @@ export function ResultScreen() {
 
   const mainText = (() => {
     if (isVerified && chainValid) {
-      return 'La evidencia del registro coincide con la certificación emitida.'
+      return 'La evidencia del registro coincide con la información emitida dentro de Pineal Shield.'
     }
 
     if (isVerified && !chainValid) {
@@ -343,7 +343,7 @@ export function ResultScreen() {
           {verifiedResult.file_url && (
             <Field
               label="Estado"
-              value="Archivo vinculado al registro certificado"
+              value="Archivo vinculado al registro verificado"
             />
           )}
         </Card>
@@ -492,7 +492,7 @@ function getEntityLabel(
 ) {
   switch (result.entity) {
     case 'artifact':
-      return 'Registro certificado'
+      return 'Registro verificado'
 
     case 'artifact_piece':
       return 'Pieza certificada'
