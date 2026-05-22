@@ -59,7 +59,7 @@ export function OfflineScreen() {
         </Text>
 
         <Text style={styles.cardBody}>
-          PinealID requiere conectividad para consultar evidencia certificada y obtener el estado actual del registro solicitado.
+          PinealID requiere conectividad para consultar evidencia asociada y obtener el estado actual del registro solicitado.
         </Text>
       </View>
 

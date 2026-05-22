@@ -15,14 +15,18 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.pinealid"
+    namespace "com.pinealshield.id"
 
     defaultConfig {
-        applicationId "com.pinealid"
+        applicationId "com.pinealshield.id"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2026051102
-        versionName "1.0.4"
+        versionCode 2026052101
+        versionName "1.0.5"
+
+        manifestPlaceholders = [
+            usesCleartextTraffic: "false"
+        ]
     }
 
     signingConfigs {
@@ -47,14 +51,20 @@ android {
         debug {
             signingConfig signingConfigs.debug
             debuggable true
+            manifestPlaceholders = [
+                usesCleartextTraffic: "true"
+            ]
         }
+
         release {
             debuggable false
             signingConfig signingConfigs.release
             minifyEnabled false
+            manifestPlaceholders = [
+                usesCleartextTraffic: "false"
+            ]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
-
     }
 }
 

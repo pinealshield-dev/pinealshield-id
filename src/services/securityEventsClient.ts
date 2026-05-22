@@ -32,13 +32,19 @@ export async function registerSecurityEvent(
     )
 
     if (!res.ok) {
-      console.log('[SECURITY_EVENT] HTTP error')
+      if (__DEV__) {
+        console.log('[SECURITY_EVENT] HTTP error')
+      }
       return
     }
 
     const json = await res.json()
-    console.log('[SECURITY_EVENT]', json)
+    if (__DEV__) {
+      console.log('[SECURITY_EVENT]', json)
+    }
   } catch (err) {
-    console.log('[SECURITY_EVENT] fail', err)
+    if (__DEV__) {
+      console.log('[SECURITY_EVENT] fail', err)
+    }
   }
 }

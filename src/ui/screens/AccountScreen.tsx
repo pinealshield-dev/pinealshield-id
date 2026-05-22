@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import {
   View,
   Text,
@@ -72,46 +76,12 @@ export function AccountScreen() {
   const [loading, setLoading] =
     useState(false)
 
-  useEffect(() => {
-    boot()
-
-    const unsubscribe =
-      NetInfo.addEventListener(state => {
-        const connected =
-          Boolean(state.isConnected) &&
-          Boolean(
-            state.isInternetReachable ?? true
-          )
-
-        setIsOnline(connected)
-      })
-
-    return unsubscribe
-  }, [])
-
-  async function boot() {
-    await refreshDiagnostics()
-
-    try {
-      const trustData =
-        await getDeviceTrust()
-
-      setTrust(trustData)
-    } catch {}
-
-    try {
-      await refreshMobileSession()
-    } catch {}
-
-    await loadIdentity()
-  }
-
-  async function refreshDiagnostics() {
+  const refreshDiagnostics = useCallback(async () => {
     const id = await getDeviceId()
     setDeviceId(id)
-  }
+  }, [])
 
-  async function loadIdentity() {
+  const loadIdentity = useCallback(async () => {
     try {
       const data =
         await getMobileIdentity()
@@ -137,7 +107,42 @@ export function AccountScreen() {
         expires_at: null,
       })
     }
-  }
+  }, [])
+
+  const boot = useCallback(async () => {
+    await refreshDiagnostics()
+
+    try {
+      const trustData =
+        await getDeviceTrust()
+
+      setTrust(trustData)
+    } catch {}
+
+    try {
+      await refreshMobileSession()
+    } catch {}
+
+    await loadIdentity()
+  }, [loadIdentity, refreshDiagnostics])
+
+  useEffect(() => {
+    boot()
+
+    const unsubscribe =
+      NetInfo.addEventListener(state => {
+        const connected =
+          Boolean(state.isConnected) &&
+          Boolean(
+            state.isInternetReachable ?? true
+          )
+
+        setIsOnline(connected)
+      })
+
+    return unsubscribe
+  }, [boot])
+
 
   async function handleRequestAccess() {
     try {
@@ -367,7 +372,7 @@ export function AccountScreen() {
       </Text>
 
       <Text style={styles.subtitle}>
-        Entorno operativo para consulta segura de registros y evidencia certificada.
+        Entorno operativo para consulta segura de registros verificados y evidencia asociada.
       </Text>
 
       <View style={styles.card}>
@@ -406,7 +411,7 @@ export function AccountScreen() {
 
         <Text style={styles.desc}>
           {isOnline
-            ? 'Acceso operativo disponible para consultas seguras de registros certificados.'
+            ? 'Acceso operativo disponible para consultas seguras de registros verificados.'
             : 'Modo local activo. Algunas consultas requieren conectividad segura.'}
         </Text>
       </View>
@@ -502,9 +507,7 @@ export function AccountScreen() {
             <Pressable
               style={[
                 styles.primaryButton,
-                loading && {
-                  opacity: 0.55,
-                },
+                loading && styles.disabledOpacity,
               ]}
               onPress={
                 handleLogout
@@ -554,9 +557,7 @@ export function AccountScreen() {
               <Pressable
                 style={[
                   styles.primaryButton,
-                  loading && {
-                    opacity: 0.55,
-                  },
+                  loading && styles.disabledOpacity,
                 ]}
                 onPress={
                   handleRequestAccess
@@ -591,9 +592,7 @@ export function AccountScreen() {
                 <Pressable
                   style={[
                     styles.primaryButton,
-                    loading && {
-                      opacity: 0.55,
-                    },
+                    loading && styles.disabledOpacity,
                   ]}
                   onPress={
                     handleConfirm
@@ -646,7 +645,7 @@ export function AccountScreen() {
         </Text>
 
         <Text style={styles.desc}>
-          Este entorno permitirá gestionar registros certificados y evidencia digital asociada.
+          Este entorno permitirá gestionar registros verificados y evidencia digital asociada.
         </Text>
       </View>
 
@@ -870,5 +869,9 @@ const styles = StyleSheet.create({
       colors.textSecondary,
     fontSize: 14,
     marginBottom: 8,
+  },
+
+  disabledOpacity: {
+    opacity: 0.55,
   },
 })

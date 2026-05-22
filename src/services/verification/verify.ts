@@ -5,7 +5,7 @@ import { VerificationResponse } from './types';
  * Reemplazaremos esto cuando tengamos API real.
  */
 export async function verifyIdentifier(
-  identifier: string
+  _identifier: string
 ): Promise<VerificationResponse> {
   return {
     status: 'authentic',
