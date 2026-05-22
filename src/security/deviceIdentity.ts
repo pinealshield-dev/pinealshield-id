@@ -29,7 +29,9 @@ export async function getDeviceId(): Promise<string> {
     return newId
 
   } catch (err) {
-    console.log('[DEVICE_ID] error:', err)
+    if (__DEV__) {
+      console.log('[DEVICE_ID] error:', err)
+    }
 
     // ⚠️ fallback SOLO para no romper flujo
     return `fallback-${Date.now()}`

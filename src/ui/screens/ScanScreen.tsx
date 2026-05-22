@@ -85,13 +85,13 @@ export function ScanScreen() {
           raw: identifier,
         }
       );
-    } catch (error) {
-      // fallback seguro
-      navigation.replace(
-        'Result',
-        { status: 'invalid' }
-      );
-    }
+    } catch {
+        // fallback seguro
+        navigation.replace(
+          'Result',
+          { status: 'invalid' }
+        )
+      }
   };
 
   const codeScanner =
@@ -122,7 +122,7 @@ export function ScanScreen() {
     return (
       <CenteredBlock
         title="Acceso requerido"
-        subtitle="PinealID utiliza la cámara para consultar registros certificados dentro de la infraestructura Pineal Shield."
+        subtitle="PinealID utiliza la cámara para consultar registros verificados dentro de la infraestructura Pineal Shield."
         buttonText="Conceder acceso"
         onPress={requestPermission}
       />

@@ -38,7 +38,7 @@ export function LegalScreen() {
 
       <Section
         title="Aviso de Privacidad"
-        body={`PinealID procesa información técnica mínima necesaria para operar consultas seguras de registros certificados, proteger integridad operativa y mantener trazabilidad del entorno.
+        body={`PinealID procesa información técnica necesaria para operar consultas seguras de registros verificados, proteger la integridad operativa y mantener trazabilidad del entorno.
 
 La aplicación no tiene como finalidad principal recopilar información personal sensible.`}
       />

@@ -115,7 +115,7 @@ export function ResultScreen() {
       <StateScreen
         loading
         title="Verificando"
-        subtitle="Consultando evidencia certificada..."
+        subtitle="Consultando evidencia asociada..."
       />
     )
   }
@@ -416,7 +416,7 @@ function StateScreen({
         <ActivityIndicator
           size="large"
           color={colors.primary}
-          style={{ marginBottom: 18 }}
+          style={styles.iconSpacing}
         />
       ) : (
         <View style={styles.stateBadge}>
@@ -495,7 +495,7 @@ function getEntityLabel(
       return 'Registro verificado'
 
     case 'artifact_piece':
-      return 'Pieza certificada'
+      return 'Pieza verificada'
 
     case 'document':
       return 'Documento'
@@ -731,11 +731,15 @@ const styles = StyleSheet.create({
   },
 
   mediaCard: {
-  borderRadius: 18,
-  padding: 18,
-  backgroundColor: '#050505',
-  borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.06)',
-  marginBottom: 14,
-},
+    borderRadius: 18,
+    padding: 18,
+    backgroundColor: '#050505',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+    marginBottom: 14,
+  },
+
+  iconSpacing: {
+    marginBottom: 18,
+  },
 })

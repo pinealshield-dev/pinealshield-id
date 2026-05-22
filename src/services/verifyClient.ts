@@ -93,7 +93,9 @@ export async function verifyByHashPublic(
         p_context: context,
       }
 
-      console.log('[VERIFY] PAYLOAD:', JSON.stringify(payload))
+      if (__DEV__) {
+        console.log('[VERIFY] PAYLOAD:', JSON.stringify(payload))
+      }
 
       const url = `${ENV.SUPABASE_URL}${ENV.RPC_VERIFY_PATH}`
 
@@ -139,7 +141,9 @@ export async function verifyByHashPublic(
       const parsed = VerifySchema.safeParse(json)
 
       if (!parsed.success) {
-        console.log('[VERIFY] Invalid schema:', parsed.error)
+        if (__DEV__) {
+          console.log('[VERIFY] Invalid schema:', parsed.error)
+        }
         return { status: 'unverified' }
       }
 
@@ -149,18 +153,24 @@ export async function verifyByHashPublic(
     } catch (err: any) {
       // timeout
       if (err?.name === 'AbortError') {
-        console.log('[VERIFY] Timeout reached')
+        if (__DEV__) {
+          console.log('[VERIFY] Timeout reached')
+        }
         throw new VerifyOfflineError()
       }
 
       // offline controlado
       if (err instanceof VerifyOfflineError) {
-        console.log('[VERIFY] Offline detected')
+        if (__DEV__) {
+          console.log('[VERIFY] Offline detected')
+        }
         throw err
       }
 
       // fetch network error
-      console.log('[VERIFY] Network/Error:', err)
+      if (__DEV__) {
+        console.log('[VERIFY] Network/Error:', err)
+      }
       throw new VerifyOfflineError()
 
     } finally {
